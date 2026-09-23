@@ -1,0 +1,32 @@
+{
+  "id": "/",
+  "name": "BFP MADRID EMERGENCY NOTIFIER",
+  "short_name": "BFP Madrid",
+  "description": "Official real-time emergency incident reporting, GPS responder routing, and BFP Madrid / MDRRMO alert dispatch for Madrid, Surigao del Sur.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0f172a",
+  "background_color": "#020617",
+  "icons": [
+    {
+      "src": "/ChatGPT Image Sep 23, 2026, 12_48_31 PM.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/ChatGPT Image Sep 23, 2026, 12_48_31 PM.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/ChatGPT Image Sep 23, 2026, 12_48_31 PM.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

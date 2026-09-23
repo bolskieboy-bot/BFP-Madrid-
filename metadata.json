@@ -1,0 +1,10 @@
+{
+  "name": "BFP MADRID EMERGENCY NOTIFIER",
+  "description": "BFP Madrid Emergency Notifier - Real-time emergency incident reporting, GPS responder routing, and BFP Madrid / MDRRMO alert dispatch for Madrid, Surigao del Sur, Philippines.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

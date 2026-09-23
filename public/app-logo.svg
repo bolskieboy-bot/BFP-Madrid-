@@ -1,0 +1,223 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Background Gradients -->
+    <radialGradient id="bgGlow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#ff2a3b"/>
+      <stop offset="65%" stop-color="#d90429"/>
+      <stop offset="100%" stop-color="#800418"/>
+    </radialGradient>
+    
+    <linearGradient id="axeWood" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2b2d42"/>
+      <stop offset="50%" stop-color="#1a1c29"/>
+      <stop offset="100%" stop-color="#0f111a"/>
+    </linearGradient>
+
+    <linearGradient id="axeSteel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ff3b4e"/>
+      <stop offset="60%" stop-color="#d90429"/>
+      <stop offset="100%" stop-color="#90041a"/>
+    </linearGradient>
+
+    <linearGradient id="bladeEdge" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#cfd2d6"/>
+    </linearGradient>
+
+    <linearGradient id="goldGradient" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe259"/>
+      <stop offset="100%" stop-color="#ffa751"/>
+    </linearGradient>
+
+    <linearGradient id="goldBorder" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fff275"/>
+      <stop offset="50%" stop-color="#f5a623"/>
+      <stop offset="100%" stop-color="#b87700"/>
+    </linearGradient>
+
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle App Icon Base -->
+  <rect x="8" y="8" width="496" height="496" rx="112" fill="url(#bgGlow)" stroke="#ff4d5e" stroke-width="4"/>
+  <rect x="14" y="14" width="484" height="484" rx="106" fill="none" stroke="#660010" stroke-width="3" opacity="0.6"/>
+
+  <!-- Left Siren Waves -->
+  <g fill="none" stroke="#900216" stroke-width="12" stroke-linecap="round" opacity="0.85">
+    <path d="M 68 180 A 180 180 0 0 0 68 310" />
+    <path d="M 98 198 A 140 140 0 0 0 98 292" stroke-width="10"/>
+    <path d="M 128 216 A 100 100 0 0 0 128 274" stroke-width="8"/>
+  </g>
+
+  <!-- Right Siren Waves -->
+  <g fill="none" stroke="#900216" stroke-width="12" stroke-linecap="round" opacity="0.85">
+    <path d="M 444 180 A 180 180 0 0 1 444 310" />
+    <path d="M 414 198 A 140 140 0 0 1 414 292" stroke-width="10"/>
+    <path d="M 384 216 A 100 100 0 0 1 384 274" stroke-width="8"/>
+  </g>
+
+  <!-- Crossed Firefighter Axes -->
+  <g filter="url(#dropShadow)">
+    <!-- Axe 1 (Top Left to Bottom Right) -->
+    <g transform="translate(256, 235) rotate(-45) translate(-256, -235)">
+      <!-- Handle -->
+      <rect x="245" y="45" width="22" height="380" rx="9" fill="url(#axeWood)" stroke="#0b0f19" stroke-width="2"/>
+      <!-- Grip bands -->
+      <rect x="245" y="320" width="22" height="80" rx="3" fill="#141724" stroke="#000" stroke-width="1"/>
+      <!-- Pickhead Axe Head -->
+      <path d="M 235 60 L 277 60 L 290 85 L 290 140 L 268 148 L 244 148 L 222 140 L 222 85 Z" fill="url(#axeSteel)" stroke="#0b0f19" stroke-width="3"/>
+      <!-- Left Axe Blade Cutting Edge -->
+      <path d="M 224 75 Q 160 55 145 115 Q 160 175 224 150 Z" fill="url(#axeSteel)" stroke="#0b0f19" stroke-width="3"/>
+      <path d="M 155 80 Q 146 115 155 150 L 145 115 Z" fill="url(#bladeEdge)"/>
+      <!-- Right Pick Edge -->
+      <path d="M 288 95 L 345 115 L 288 135 Z" fill="url(#axeSteel)" stroke="#0b0f19" stroke-width="3"/>
+      <path d="M 325 110 L 345 115 L 325 120 Z" fill="url(#bladeEdge)"/>
+    </g>
+
+    <!-- Axe 2 (Top Right to Bottom Left) -->
+    <g transform="translate(256, 235) rotate(45) translate(-256, -235)">
+      <!-- Handle -->
+      <rect x="245" y="45" width="22" height="380" rx="9" fill="url(#axeWood)" stroke="#0b0f19" stroke-width="2"/>
+      <!-- Grip bands -->
+      <rect x="245" y="320" width="22" height="80" rx="3" fill="#141724" stroke="#000" stroke-width="1"/>
+      <!-- Pickhead Axe Head -->
+      <path d="M 235 60 L 277 60 L 290 85 L 290 140 L 268 148 L 244 148 L 222 140 L 222 85 Z" fill="url(#axeSteel)" stroke="#0b0f19" stroke-width="3"/>
+      <!-- Left Axe Blade Cutting Edge -->
+      <path d="M 224 75 Q 160 55 145 115 Q 160 175 224 150 Z" fill="url(#axeSteel)" stroke="#0b0f19" stroke-width="3"/>
+      <path d="M 155 80 Q 146 115 155 150 L 145 115 Z" fill="url(#bladeEdge)"/>
+      <!-- Right Pick Edge -->
+      <path d="M 288 95 L 345 115 L 288 135 Z" fill="url(#axeSteel)" stroke="#0b0f19" stroke-width="3"/>
+      <path d="M 325 110 L 345 115 L 325 120 Z" fill="url(#bladeEdge)"/>
+    </g>
+  </g>
+
+  <!-- Central Circular Seal -->
+  <g filter="url(#dropShadow)">
+    <!-- Outer Gold Scalloped Ring -->
+    <circle cx="256" cy="235" r="150" fill="url(#goldBorder)"/>
+    <circle cx="256" cy="235" r="144" fill="#ffffff" stroke="#c1121f" stroke-width="4"/>
+
+    <!-- Circular Paths for Text -->
+    <path id="textCircleTop" d="M 132 235 A 124 124 0 0 1 380 235" fill="none" />
+    <path id="textCircleBottom" d="M 380 235 A 124 124 0 0 1 132 235" fill="none" />
+
+    <!-- Top Text: MADRID FIRE STATION -->
+    <text font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="25.5" font-weight="900" fill="#c1121f" letter-spacing="2.5">
+      <textPath href="#textCircleTop" startOffset="50%" text-anchor="middle">
+        MADRID FIRE STATION
+      </textPath>
+    </text>
+
+    <!-- Bottom Text: Bureau of Fire Protection -->
+    <text font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20.5" font-weight="900" fill="#c1121f" letter-spacing="1.5">
+      <textPath href="#textCircleBottom" startOffset="50%" text-anchor="middle">
+        Bureau of Fire Protection
+      </textPath>
+    </text>
+
+    <!-- Accent Gold Stars -->
+    <g fill="#f5a623" stroke="#b87700" stroke-width="1.5">
+      <!-- Left Star -->
+      <polygon points="126,235 129,242 137,243 131,248 133,256 126,251 119,256 121,248 115,243 123,242" transform="translate(12, -10) scale(1.1)"/>
+      <!-- Right Star -->
+      <polygon points="386,235 389,242 397,243 391,248 393,256 386,251 379,256 381,248 375,243 383,242" transform="translate(-32, -10) scale(1.1)"/>
+    </g>
+
+    <!-- Inner Red Circle Container -->
+    <circle cx="256" cy="235" r="98" fill="#c1121f" stroke="#ffa751" stroke-width="3"/>
+
+    <!-- Maltese Cross (Firefighter 8-Point Cross) -->
+    <g id="malteseCross">
+      <path d="M 256 142 L 274 185 L 298 174 L 282 216 L 326 200 L 314 224 L 350 235 L 314 246 L 326 270 L 282 254 L 298 296 L 274 285 L 256 328 L 238 285 L 214 296 L 230 254 L 186 270 L 198 246 L 162 235 L 198 224 L 186 200 L 230 216 L 214 174 L 238 185 Z"
+            fill="url(#goldGradient)" stroke="#800418" stroke-width="3.5" stroke-linejoin="round"/>
+    </g>
+
+    <!-- Maltese Cross Wing Text & Symbols -->
+    <!-- Top: SAVE LIVES -->
+    <text x="256" y="172" font-family="system-ui, sans-serif" font-size="12" font-weight="900" fill="#800418" text-anchor="middle">SAVE LIVES</text>
+    <!-- Firefighter Silhouette in Top Wing -->
+    <path d="M 256 178 A 3 3 0 1 0 256 184 A 3 3 0 1 0 256 178 Z M 253 186 L 259 186 L 261 199 L 251 199 Z" fill="#800418"/>
+
+    <!-- Bottom: PROTECT PROPERTY -->
+    <text x="256" y="306" font-family="system-ui, sans-serif" font-size="9.5" font-weight="900" fill="#800418" text-anchor="middle">PROTECT PROPERTY</text>
+    <!-- Stack of Books / Protection Shield in Bottom Wing -->
+    <path d="M 248 282 L 264 282 L 264 286 L 248 286 Z M 246 288 L 266 288 L 266 292 L 246 292 Z" fill="#800418"/>
+
+    <!-- Left Wing: Crossed Ladder & Axe -->
+    <g transform="translate(196, 235) scale(0.7)">
+      <line x1="-15" y1="-15" x2="15" y2="15" stroke="#800418" stroke-width="3"/>
+      <line x1="-15" y1="15" x2="15" y2="-15" stroke="#800418" stroke-width="3"/>
+      <circle cx="0" cy="0" r="4" fill="#800418"/>
+    </g>
+
+    <!-- Right Wing: Fire Hydrant -->
+    <g transform="translate(316, 235) scale(0.68)">
+      <path d="M -8 -15 L 8 -15 L 10 -8 L 14 -8 L 14 0 L 8 0 L 8 16 L -8 16 L -8 0 L -14 0 L -14 -8 L -10 -8 Z" fill="#800418"/>
+      <circle cx="0" cy="-6" r="3" fill="url(#goldGradient)"/>
+    </g>
+
+    <!-- Center Medallion: Madrid, Surigao del Sur Seal -->
+    <circle cx="256" cy="235" r="38" fill="#4ea8de" stroke="#800418" stroke-width="3"/>
+    <!-- Mountains -->
+    <polygon points="219,240 236,224 252,242 272,220 293,242 219,242" fill="#588157"/>
+    <!-- Rice field ground -->
+    <rect x="218" y="240" width="76" height="33" fill="#aacc00"/>
+    <!-- Golden sun rays -->
+    <circle cx="256" cy="225" r="8" fill="#ffb703"/>
+    <!-- Farmer & Carabao silhouette -->
+    <path d="M 247 252 A 2 2 0 1 0 247 256 A 2 2 0 1 0 247 252 Z M 245 257 L 249 257 L 248 266 L 244 266 Z" fill="#382110"/>
+    <path d="M 255 258 Q 262 254 268 259 L 269 266 L 265 266 L 264 262 L 258 262 L 257 266 L 254 266 Z" fill="#283618"/>
+  </g>
+
+  <!-- Notification Badge: Emergency Alarm Bell (Bottom Right) -->
+  <g filter="url(#dropShadow)">
+    <!-- Red circular badge with crisp white outline -->
+    <circle cx="406" cy="336" r="54" fill="url(#bgGlow)" stroke="#ffffff" stroke-width="8"/>
+    <circle cx="406" cy="336" r="48" fill="none" stroke="#ff8591" stroke-width="2"/>
+
+    <!-- Left bell soundwave -->
+    <path d="M 374 322 A 20 20 0 0 0 374 350" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M 366 314 A 32 32 0 0 0 366 358" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+
+    <!-- Right bell soundwave -->
+    <path d="M 438 322 A 20 20 0 0 1 438 350" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+    <path d="M 446 314 A 32 32 0 0 1 446 358" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round"/>
+
+    <!-- White Ringing Alarm Bell Icon -->
+    <g transform="translate(406, 336)">
+      <!-- Bell Top Hanger -->
+      <path d="M -3 -22 A 4 4 0 0 1 3 -22 L 3 -18 L -3 -18 Z" fill="#ffffff"/>
+      <!-- Bell Body -->
+      <path d="M 0 -18 C -14 -16 -18 -4 -18 10 C -18 16 -23 18 -23 20 L 23 20 C 23 18 18 16 18 10 C 18 -4 14 -16 0 -18 Z" fill="#ffffff"/>
+      <!-- Bell Rim -->
+      <rect x="-25" y="19" width="50" height="4.5" rx="2.2" fill="#f8f9fa"/>
+      <!-- Bell Clapper -->
+      <circle cx="0" cy="26" r="4.5" fill="#ffffff"/>
+    </g>
+  </g>
+
+  <!-- Bottom Brand Banners -->
+  <g filter="url(#dropShadow)">
+    <!-- Black Ribbon Capsule -->
+    <rect x="24" y="372" width="464" height="88" rx="44" fill="#0b0f19" stroke="#f4b400" stroke-width="7"/>
+    <rect x="30" y="378" width="452" height="76" rx="38" fill="none" stroke="#ffe259" stroke-width="2" opacity="0.6"/>
+
+    <!-- Text: BFP MADRID -->
+    <text x="256" y="433" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="52" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="2">
+      BFP MADRID
+    </text>
+
+    <!-- Red Sub-pill: EMERGENCY NOTIFIER -->
+    <rect x="48" y="458" width="416" height="46" rx="23" fill="#d90429" stroke="#f4b400" stroke-width="4"/>
+    <text x="256" y="490" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="24" font-weight="900" fill="#ffffff" text-anchor="middle" letter-spacing="3.2">
+      EMERGENCY NOTIFIER
+    </text>
+  </g>
+</svg>
