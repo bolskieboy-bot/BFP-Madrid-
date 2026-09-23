@@ -1,5 +1,7 @@
 import { UserProfile, StoredAccount } from '../types';
+import { saveAccountToCloud } from './firebaseSyncService';
 
+// Constant Immutable Admin Accounts: Admin1 and Admin2 with password '1234567'
 export const SEEDED_ACCOUNTS: StoredAccount[] = [
   {
     username: 'Admin1',
@@ -33,12 +35,84 @@ export const SEEDED_ACCOUNTS: StoredAccount[] = [
       registeredAt: '2026-09-01T08:30:00.000Z',
     },
   },
+  {
+    username: 'citizen_sample',
+    password: 'citizen123',
+    profile: {
+      id: 'usr-citizen-sample',
+      username: 'citizen_sample',
+      fullName: 'Maria Santos (Madrid Resident)',
+      phoneNumber: '0917-555-0101',
+      barangay: 'Linungao (Poblacion)',
+      emergencyContactName: 'Juan Santos',
+      emergencyContactPhone: '0918-222-3344',
+      medicalNotes: 'Standard First Aid Registered',
+      role: 'citizen',
+      registeredAt: '2026-09-01T08:00:00.000Z',
+    },
+  },
 ];
+
+export const DEFAULT_CITIZEN_PROFILE: UserProfile = {
+  id: 'usr-citizen-default',
+  username: 'citizen_sample',
+  fullName: 'Resident Citizen (Madrid)',
+  phoneNumber: '0917-555-0101',
+  barangay: 'Linungao (Poblacion)',
+  emergencyContactName: 'Madrid Emergency Family Contact',
+  emergencyContactPhone: '0918-222-3344',
+  medicalNotes: 'Standard First Aid',
+  role: 'citizen',
+  registeredAt: '2026-09-01T08:00:00.000Z',
+};
 
 const STORAGE_KEYS = {
   REGISTERED_ACCOUNTS: 'madrid_custom_registered_accounts',
   CURRENT_USER: 'madrid_user_profile',
+  CITIZEN_SESSION: 'madrid_citizen_session',
+  ADMIN_SESSION: 'madrid_admin_session',
 };
+
+// Retrieve currently active citizen session
+export function getCitizenSession(): UserProfile | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.CITIZEN_SESSION);
+    if (!raw) return null;
+    const user = JSON.parse(raw) as UserProfile;
+    return user && user.role !== 'admin_dispatcher' ? user : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveCitizenSession(user: UserProfile): void {
+  localStorage.setItem(STORAGE_KEYS.CITIZEN_SESSION, JSON.stringify(user));
+  localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(user));
+}
+
+export function clearCitizenSession(): void {
+  localStorage.removeItem(STORAGE_KEYS.CITIZEN_SESSION);
+}
+
+// Retrieve currently active admin dispatcher session
+export function getAdminSession(): UserProfile | null {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.ADMIN_SESSION);
+    if (!raw) return null;
+    const user = JSON.parse(raw) as UserProfile;
+    return user && user.role === 'admin_dispatcher' ? user : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveAdminSession(user: UserProfile): void {
+  localStorage.setItem(STORAGE_KEYS.ADMIN_SESSION, JSON.stringify(user));
+}
+
+export function clearAdminSession(): void {
+  localStorage.removeItem(STORAGE_KEYS.ADMIN_SESSION);
+}
 
 // Returns custom accounts registered by citizens
 export function getRegisteredCustomAccounts(): StoredAccount[] {
@@ -50,7 +124,7 @@ export function getRegisteredCustomAccounts(): StoredAccount[] {
   }
 }
 
-// Returns all registered accounts (2 admins + registered citizen accounts)
+// Returns all registered accounts (constant admins + registered citizen accounts)
 export function getAllAccounts(): StoredAccount[] {
   const custom = getRegisteredCustomAccounts();
   return [...SEEDED_ACCOUNTS, ...custom];
@@ -95,15 +169,26 @@ export function authenticateAccount(
     };
   }
 
-  if (match.password !== pass) {
+  // Constant admin accounts check: Admin1 / Admin2 with password '1234567' (or fallback 'admin1pass' / 'admin2pass')
+  const isMatch =
+    match.password === pass ||
+    (match.username === 'Admin1' && (pass === '1234567' || pass === 'admin1pass')) ||
+    (match.username === 'Admin2' && (pass === '1234567' || pass === 'admin2pass'));
+
+  if (!isMatch) {
     return {
       success: false,
       error: 'Incorrect password. Please verify your credentials and try again.',
     };
   }
 
-  // Persist current logged in user
-  localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(match.profile));
+  // Persist session depending on role
+  if (match.profile.role === 'admin_dispatcher') {
+    saveAdminSession(match.profile);
+  } else {
+    saveCitizenSession(match.profile);
+  }
+
   return { success: true, user: match.profile };
 }
 
@@ -202,8 +287,18 @@ export function registerNewCitizenAccount(data: {
   currentCustom.push(newAccount);
   localStorage.setItem(STORAGE_KEYS.REGISTERED_ACCOUNTS, JSON.stringify(currentCustom));
 
+  // Sync registered citizen account to Firestore so it is available across all phones
+  try {
+    saveAccountToCloud(newAccount).catch((err) =>
+      console.warn('[Accounts] Cloud sync deferred:', err)
+    );
+  } catch (err) {
+    console.warn('[Accounts] Cloud sync error:', err);
+  }
+
   // Auto sign-in to new registered account
   localStorage.setItem(STORAGE_KEYS.CURRENT_USER, JSON.stringify(newUserProfile));
+  saveCitizenSession(newUserProfile);
 
   return {
     success: true,
@@ -211,7 +306,33 @@ export function registerNewCitizenAccount(data: {
   };
 }
 
+// Merge accounts retrieved from Firestore into local cache
+export function mergeCloudAccounts(cloudAccounts: StoredAccount[]): void {
+  if (!cloudAccounts || cloudAccounts.length === 0) return;
+  const current = getRegisteredCustomAccounts();
+  let changed = false;
+
+  cloudAccounts.forEach((cAcc) => {
+    // Skip seeded constant admin accounts
+    if (cAcc.username === 'Admin1' || cAcc.username === 'Admin2') return;
+
+    const exists = current.find(
+      (a) => a.username.toLowerCase() === cAcc.username.toLowerCase()
+    );
+    if (!exists) {
+      current.push(cAcc);
+      changed = true;
+    }
+  });
+
+  if (changed) {
+    localStorage.setItem(STORAGE_KEYS.REGISTERED_ACCOUNTS, JSON.stringify(current));
+  }
+}
+
 export function logoutCurrentUser(): void {
   localStorage.removeItem(STORAGE_KEYS.CURRENT_USER);
+  clearCitizenSession();
+  clearAdminSession();
 }
 

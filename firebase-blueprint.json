@@ -1,0 +1,104 @@
+{
+  "entities": {
+    "incidentReport": {
+      "title": "IncidentReport",
+      "description": "Emergency incident report created by citizens or dispatchers in Municipality of Madrid, Surigao del Sur.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 100 },
+        "incidentNumber": { "type": "string", "maxLength": 50 },
+        "category": { "type": "string", "maxLength": 30 },
+        "subcategory": { "type": "string", "maxLength": 100 },
+        "severity": { "type": "string", "maxLength": 20 },
+        "title": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 3000 },
+        "location": {
+          "type": "object",
+          "properties": {
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" },
+            "barangay": { "type": "string", "maxLength": 100 },
+            "landmark": { "type": "string", "maxLength": 200 },
+            "streetAddress": { "type": "string", "maxLength": 300 },
+            "accuracyMeters": { "type": "number" }
+          },
+          "required": ["latitude", "longitude", "barangay"]
+        },
+        "reporterName": { "type": "string", "maxLength": 120 },
+        "reporterPhone": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "maxLength": 30 },
+        "statusHistory": { "type": "array" },
+        "photos": { "type": "array" },
+        "assignedUnitId": { "type": "string", "maxLength": 100 },
+        "assignedUnitName": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string", "maxLength": 50 },
+        "updatedAt": { "type": "string", "maxLength": 50 },
+        "sirenTriggered": { "type": "boolean" },
+        "sirenAcknowledged": { "type": "boolean" }
+      },
+      "required": ["id", "incidentNumber", "category", "status", "createdAt"]
+    },
+    "responderUnit": {
+      "title": "ResponderUnit",
+      "description": "Fire truck, ambulance, or rescue unit stationed in Madrid.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 100 },
+        "name": { "type": "string", "maxLength": 100 },
+        "callSign": { "type": "string", "maxLength": 100 },
+        "type": { "type": "string", "maxLength": 30 },
+        "stationName": { "type": "string", "maxLength": 120 },
+        "currentLat": { "type": "number" },
+        "currentLng": { "type": "number" },
+        "status": { "type": "string", "maxLength": 30 },
+        "driverName": { "type": "string", "maxLength": 100 },
+        "contactNumber": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["id", "callSign", "type", "status"]
+    },
+    "account": {
+      "title": "Account",
+      "description": "Resident or dispatcher account in Madrid.",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string", "maxLength": 100 },
+        "password": { "type": "string", "maxLength": 100 },
+        "profile": { "type": "object" }
+      },
+      "required": ["username"]
+    },
+    "broadcastAlert": {
+      "title": "BroadcastAlert",
+      "description": "Emergency advisory broadcast to citizens across Madrid barangays.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 100 },
+        "title": { "type": "string", "maxLength": 200 },
+        "message": { "type": "string", "maxLength": 2000 },
+        "severity": { "type": "string", "maxLength": 30 },
+        "sender": { "type": "string", "maxLength": 100 },
+        "timestamp": { "type": "string", "maxLength": 50 },
+        "active": { "type": "boolean" }
+      },
+      "required": ["id", "title", "message", "severity", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/incident_reports/{reportId}": {
+      "schema": "incidentReport",
+      "description": "Real-time emergency incident reports submitted by residents and managed by Madrid dispatchers."
+    },
+    "/responder_units/{unitId}": {
+      "schema": "responderUnit",
+      "description": "BFP and MDRRMO fleet response units status and coordinates."
+    },
+    "/accounts/{accountId}": {
+      "schema": "account",
+      "description": "Registered resident accounts directory."
+    },
+    "/broadcast_alerts/{alertId}": {
+      "schema": "broadcastAlert",
+      "description": "Public emergency broadcasts and evacuation advisories for Madrid residents."
+    }
+  }
+}

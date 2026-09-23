@@ -35,6 +35,7 @@ interface PhoneLoginModalProps {
   onLoginSuccess: (user: UserProfile) => void;
   currentUser: UserProfile | null;
   onLogout?: () => void;
+  targetRole?: 'citizen' | 'admin_dispatcher' | null;
 }
 
 export default function PhoneLoginModal({
@@ -43,6 +44,7 @@ export default function PhoneLoginModal({
   onLoginSuccess,
   currentUser,
   onLogout,
+  targetRole,
 }: PhoneLoginModalProps) {
   const [mode, setMode] = useState<'login' | 'register'>('login');
 
@@ -319,6 +321,48 @@ export default function PhoneLoginModal({
               <span>Log In to Madrid System</span>
               <ArrowRight className="w-4 h-4" />
             </button>
+
+            {/* Quick Demo & Pre-configured Logins */}
+            <div className="pt-2 border-t border-slate-800">
+              <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+                Quick Sign-In Presets:
+              </span>
+              <div className="grid grid-cols-3 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginIdentifier('citizen_sample');
+                    setLoginPassword('citizen123');
+                  }}
+                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left text-[10px] transition"
+                >
+                  <div className="font-bold text-emerald-400">👤 Citizen</div>
+                  <div className="text-slate-400 text-[9px] truncate">Maria Santos</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginIdentifier('Admin1');
+                    setLoginPassword('1234567');
+                  }}
+                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left text-[10px] transition"
+                >
+                  <div className="font-bold text-amber-400">🚒 Admin 1</div>
+                  <div className="text-slate-400 text-[9px] truncate">Pass: 1234567</div>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLoginIdentifier('Admin2');
+                    setLoginPassword('1234567');
+                  }}
+                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left text-[10px] transition"
+                >
+                  <div className="font-bold text-sky-400">🚑 Admin 2</div>
+                  <div className="text-slate-400 text-[9px] truncate">Pass: 1234567</div>
+                </button>
+              </div>
+            </div>
           </form>
         ) : (
           /* Registration Form (Up to 500 accounts) */

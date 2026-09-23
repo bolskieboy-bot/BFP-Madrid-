@@ -1,0 +1,70 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidString(val, maxLen) {
+      return val is string && val.size() <= maxLen;
+    }
+
+    // Emergency Incident Reports
+    match /incident_reports/{reportId} {
+      // All residents and dispatchers can read and list incident reports for safety in Madrid
+      allow read: if true;
+
+      // Allow creating emergency reports from any resident or dispatcher in Madrid
+      allow create: if incoming().id is string
+        && isValidString(incoming().incidentNumber, 50)
+        && isValidString(incoming().category, 30)
+        && isValidString(incoming().status, 30);
+
+      // Allow updating incident status, assigned responders, and siren acknowledgements
+      allow update: if incoming().id == existing().id
+        && incoming().incidentNumber == existing().incidentNumber;
+
+      allow delete: if false;
+    }
+
+    // Emergency Responder Units (Fire trucks, Ambulances, Rescue teams)
+    match /responder_units/{unitId} {
+      allow read: if true;
+      allow create, update: if incoming().id is string
+        && isValidString(incoming().callSign, 100)
+        && isValidString(incoming().status, 30);
+      allow delete: if false;
+    }
+
+    // Citizen Account Profiles for Madrid residents
+    match /accounts/{accountId} {
+      allow read: if true;
+      allow create, update: if incoming().username is string
+        && isValidString(incoming().username, 100);
+      allow delete: if false;
+    }
+
+    // Public Municipal Emergency Alerts & Warnings
+    match /broadcast_alerts/{alertId} {
+      allow read: if true;
+      allow create, update: if incoming().id is string
+        && isValidString(incoming().title, 200)
+        && isValidString(incoming().severity, 30);
+      allow delete: if false;
+    }
+
+    // Health check collection for connection testing
+    match /system_health/{docId} {
+      allow read, write: if true;
+    }
+  }
+}

@@ -150,6 +150,12 @@ export default function AppInfoModal({ isOpen, onClose }: AppInfoModalProps) {
             <li className="flex items-start gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
               <span>
+                <strong className="text-white">Real-Time Multi-Device Internet Sync:</strong> Client App and Admin App exchange data, photos, alarms, and responder telemetry over the internet in real-time across different phones and distant locations.
+              </span>
+            </li>
+            <li className="flex items-start gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0 mt-0.5" />
+              <span>
                 <strong className="text-white">Direct SMS &amp; Offline Queue:</strong> Pre-formatted SMS distress can be sent even without cellular data connection.
               </span>
             </li>

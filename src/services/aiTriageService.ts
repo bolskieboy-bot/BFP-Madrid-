@@ -153,7 +153,28 @@ function deterministicPhotoClassifier(
     };
   }
 
-  // 3. Electrical hazard / Spark check
+  // 3. Grass fire / Wildfire check
+  if (
+    text.includes('grass') ||
+    text.includes('wildfire') ||
+    text.includes('brush') ||
+    text.includes('field') ||
+    text.includes('vegetation')
+  ) {
+    return {
+      category: 'fire',
+      subcategory: 'Grassland / Brush Wildfire',
+      kindOfHelp: 'Grass Fire Suppression & Wildfire Crew Needed',
+      severity: 'high',
+      recommendedUnitId: 'unit-bfp-01',
+      recommendedUnitName: 'BFP Madrid Fire Engine (Unit-BFP-01)',
+      confidence: 97,
+      explanation: 'Active grass fire or brush burning in open terrain. High risk of wind-driven spread toward nearby houses.',
+      civilianAdvice: 'Stay upwind from smoke plume. Clear dry grass and create a wet boundary around adjacent properties.',
+    };
+  }
+
+  // 4. Electrical hazard / Spark check
   if (
     text.includes('spark') ||
     text.includes('electric') ||
