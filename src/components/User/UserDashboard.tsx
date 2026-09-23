@@ -47,13 +47,13 @@ interface UserDashboardProps {
   onSelectIncidentOnMap?: (report: IncidentReport) => void;
 }
 
-// Madrid Incident Guidance Categories (Client can choose: House Fire, Grass Fire, Vehicle Crash, Medical Attention)
-// Blank with no stock photos yet - citizens attach live photo or report category
-export type MadridGuidanceType = 'house_fire' | 'grass_fire' | 'vehicle_crash' | 'medical_attention';
+// Madrid Incident Emergency Categories:
+// User requirement: "after taking the photo they will choose only 4 buttons: Structural Fire, Grass Fire, Vehicular Accident and Medical Assistance."
+export type MadridGuidanceType = 'structural_fire' | 'grass_fire' | 'vehicular_accident' | 'medical_assistance';
 
 export interface MadridGuidanceItem {
   id: MadridGuidanceType;
-  title: string;
+  title: 'Structural Fire' | 'Grass Fire' | 'Vehicular Accident' | 'Medical Assistance';
   subtitle: string;
   icon: string;
   category: 'fire' | 'vehicular' | 'medical';
@@ -63,75 +63,77 @@ export interface MadridGuidanceItem {
   recommendedUnitName: string;
   desc: string;
   safetyAdvice: string;
+  badgeColor: string;
+  activeRing: string;
+  activeBg: string;
 }
 
 export const MADRID_GUIDANCE_OPTIONS: MadridGuidanceItem[] = [
   {
-    id: 'house_fire',
-    title: 'House Fire',
-    subtitle: 'Residential structure, kitchen or roof blaze',
+    id: 'structural_fire',
+    title: 'Structural Fire',
+    subtitle: 'Residential house, commercial building or roof fire',
     icon: '🔥',
     category: 'fire',
-    subcategory: 'Residential House Fire',
-    kindOfHelp: 'Structural Fire Suppression & BFP Attack Engine Needed',
+    subcategory: 'Structural Fire',
+    kindOfHelp: 'Structural Fire Suppression & BFP Engine Needed',
     recommendedUnitId: 'unit-bfp-01',
     recommendedUnitName: 'BFP Madrid Fire Engine (Rosenbauer Pumper)',
-    desc: 'House fire emergency reported in Madrid, Surigao del Sur.',
+    desc: 'Structural fire emergency reported in Madrid, Surigao del Sur.',
     safetyAdvice: 'Evacuate all household members immediately. Do not attempt to re-enter smoke-filled rooms.',
+    badgeColor: 'bg-rose-500/20 text-rose-300 border-rose-500/40',
+    activeRing: 'ring-rose-500 border-rose-500',
+    activeBg: 'bg-rose-950/70',
   },
   {
     id: 'grass_fire',
     title: 'Grass Fire',
-    subtitle: 'Agricultural, brush & dry field blaze',
+    subtitle: 'Agricultural field, grassland or brush blaze',
     icon: '🌾',
     category: 'fire',
-    subcategory: 'Grassland / Brush Wildfire',
+    subcategory: 'Grass Fire',
     kindOfHelp: 'Grass Fire Suppression & Wildfire Crew Needed',
     recommendedUnitId: 'unit-bfp-01',
     recommendedUnitName: 'BFP Madrid Fire Engine & Grassland Crew',
     desc: 'Grass fire / agricultural brush fire spreading in Madrid, Surigao del Sur.',
     safetyAdvice: 'Stay upwind of smoke plume. Clear dry leaves and grass around nearby houses.',
+    badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/40',
+    activeRing: 'ring-amber-500 border-amber-500',
+    activeBg: 'bg-amber-950/70',
   },
   {
-    id: 'vehicle_crash',
-    title: 'Vehicle Crash',
-    subtitle: 'Road collision, highway crash or rollover',
+    id: 'vehicular_accident',
+    title: 'Vehicular Accident',
+    subtitle: 'Highway crash, collision or vehicle rollover',
     icon: '🚗',
     category: 'vehicular',
-    subcategory: 'Vehicular Road Crash',
+    subcategory: 'Vehicular Accident',
     kindOfHelp: 'Vehicular Extrication & Emergency Ambulance Response Needed',
     recommendedUnitId: 'unit-mdr-01',
     recommendedUnitName: 'MDRRMO Rescue Vehicle & Ambulance (Unit-MDR-01)',
-    desc: 'Vehicular crash / highway collision incident in Madrid, Surigao del Sur.',
-    safetyAdvice: 'Do not move injured persons unless in immediate fire danger. Safely divert oncoming traffic.',
+    desc: 'Vehicular accident / highway collision incident in Madrid, Surigao del Sur.',
+    safetyAdvice: 'Do not move injured persons unless in immediate danger. Safely divert oncoming traffic.',
+    badgeColor: 'bg-sky-500/20 text-sky-300 border-sky-500/40',
+    activeRing: 'ring-sky-500 border-sky-500',
+    activeBg: 'bg-sky-950/70',
   },
   {
-    id: 'medical_attention',
-    title: 'Medical Attention',
-    subtitle: 'Acute trauma, cardiac or emergency patient',
+    id: 'medical_assistance',
+    title: 'Medical Assistance',
+    subtitle: 'Acute medical emergency, cardiac or severe trauma',
     icon: '🚑',
     category: 'medical',
-    subcategory: 'Severe Trauma / Acute Medical Emergency',
-    kindOfHelp: 'Emergency Paramedic & Rapid Ambulance Transport Needed',
+    subcategory: 'Medical Assistance',
+    kindOfHelp: 'Emergency Medical Assistance & Rapid Transport Needed',
     recommendedUnitId: 'unit-bfp-amb-01',
     recommendedUnitName: 'BFP Madrid EMS Ambulance Alpha',
-    desc: 'Urgent medical attention / emergency trauma care requested in Madrid, Surigao del Sur.',
+    desc: 'Urgent medical assistance requested in Madrid, Surigao del Sur.',
     safetyAdvice: 'Keep patient calm and still. If bleeding, apply direct clean pressure. Allow ample ventilation.',
+    badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40',
+    activeRing: 'ring-emerald-500 border-emerald-500',
+    activeBg: 'bg-emerald-950/70',
   },
 ];
-
-// Generates an official blank placeholder graphic when no camera photo has been taken yet
-function generateBlankIncidentGraphic(title: string, iconText: string): string {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
-    <rect width="600" height="400" fill="#0f172a"/>
-    <rect x="24" y="24" width="552" height="352" rx="18" fill="#1e293b" stroke="#f43f5e" stroke-width="2.5" stroke-dasharray="10 10"/>
-    <text x="300" y="150" font-family="sans-serif" font-size="64" text-anchor="middle">${iconText}</text>
-    <text x="300" y="215" font-family="sans-serif" font-size="28" font-weight="bold" fill="#f8fafc" text-anchor="middle">${title.toUpperCase()}</text>
-    <text x="300" y="255" font-family="sans-serif" font-size="16" fill="#94a3b8" text-anchor="middle">Madrid Incident Guidance • Blank (No Photo Attached Yet)</text>
-    <text x="300" y="310" font-family="sans-serif" font-size="14" font-weight="bold" fill="#fbbf24" text-anchor="middle">BFP Madrid &amp; MDRRMO Emergency Response System</text>
-  </svg>`;
-  return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
-}
 
 export default function UserDashboard({
   currentUser,
@@ -253,7 +255,7 @@ export default function UserDashboard({
     setErrorMsg(null);
     setPhotoCaption(item.desc);
 
-    // Explicitly populate autoIdentifiedHelp with the selected incident option
+    // Populate autoIdentifiedHelp with the user's selected 1-of-4 emergency category
     setAutoIdentifiedHelp({
       category: item.category,
       subcategory: item.subcategory,
@@ -262,29 +264,24 @@ export default function UserDashboard({
       recommendedUnitId: item.recommendedUnitId,
       recommendedUnitName: item.recommendedUnitName,
       confidence: 100,
-      explanation: item.desc,
+      explanation: `${item.title}: ${item.subtitle}`,
       civilianAdvice: item.safetyAdvice,
     });
-
-    // If citizen has not uploaded a camera photo yet, set official blank placeholder graphic
-    if (!hasUserUploadedPhoto) {
-      const blankGraphic = generateBlankIncidentGraphic(item.title, item.icon);
-      setPhotoDataUrl(blankGraphic);
-    }
   };
 
   const handleSubmitPhoto = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!photoDataUrl && !selectedGuidance) {
-      setErrorMsg('Please select an incident category (House Fire, Grass Fire, Vehicle Crash, Medical Attention) or take a photo.');
+    if (!photoDataUrl) {
+      setErrorMsg('Please capture or upload an emergency incident photo first.');
       return;
     }
 
-    let activeDataUrl = photoDataUrl;
-    if (!activeDataUrl && selectedGuidance) {
-      const item = MADRID_GUIDANCE_OPTIONS.find((c) => c.id === selectedGuidance)!;
-      activeDataUrl = generateBlankIncidentGraphic(item.title, item.icon);
+    if (!selectedGuidance) {
+      setErrorMsg('Please choose 1 of the 4 buttons above: Structural Fire, Grass Fire, Vehicular Accident, or Medical Assistance.');
+      return;
     }
+
+    const chosenOption = MADRID_GUIDANCE_OPTIONS.find((c) => c.id === selectedGuidance)!;
 
     setIsSubmitting(true);
     setErrorMsg(null);
@@ -294,7 +291,7 @@ export default function UserDashboard({
       playCitizenGentleConfirmation();
 
       // Ensure photo dataUrl is compressed
-      const finalPhotoUrl = await compressDataUrl(activeDataUrl!, 900, 0.65);
+      const finalPhotoUrl = await compressDataUrl(photoDataUrl, 900, 0.65);
 
       const stationLat = 9.2628;
       const stationLng = 125.9602;
@@ -310,11 +307,10 @@ export default function UserDashboard({
         identifiedAddress?.fullAddress ||
         `${identifiedAddress?.streetAddress || 'National Highway'}, Brgy. ${resolvedBarangay}, Madrid, Surigao del Sur`;
 
-      // Use automatically identified category & subcategory from the photo
-      const category = autoIdentifiedHelp?.category || 'fire';
-      const subcategory = autoIdentifiedHelp?.subcategory || 'Emergency Incident';
+      const category = chosenOption.category;
+      const subcategory = chosenOption.subcategory;
       const assignedUnit =
-        responderUnits.find((u) => u.id === autoIdentifiedHelp?.recommendedUnitId) ||
+        responderUnits.find((u) => u.id === chosenOption.recommendedUnitId) ||
         (category === 'medical'
           ? responderUnits.find((u) => u.id === 'unit-bfp-amb-01') || responderUnits[1]
           : responderUnits[0]);
@@ -324,11 +320,9 @@ export default function UserDashboard({
         incidentNumber,
         category,
         subcategory,
-        severity: autoIdentifiedHelp?.severity || 'high',
-        title: `${autoIdentifiedHelp?.kindOfHelp || 'Emergency Incident'} at ${resolvedBarangay}`,
-        description:
-          autoIdentifiedHelp?.explanation ||
-          `Citizen photo emergency reported from ${resolvedStreet}. Automatic dispatch alerted BFP Madrid & MDRRMO.`,
+        severity: chosenOption.category === 'fire' || chosenOption.category === 'medical' ? 'critical' : 'high',
+        title: `${chosenOption.title} Emergency at ${resolvedBarangay}`,
+        description: `${chosenOption.desc} Citizen live photo transmitted from ${resolvedStreet}.`,
         location: {
           latitude: lat,
           longitude: lng,
@@ -344,10 +338,8 @@ export default function UserDashboard({
             id: 'photo-' + Date.now(),
             dataUrl: finalPhotoUrl,
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            caption: hasUserUploadedPhoto
-              ? photoCaption || autoIdentifiedHelp?.subcategory || 'Emergency Photo'
-              : `${autoIdentifiedHelp?.subcategory || 'Emergency Report'} (Blank - No Photo Attached Yet)`,
-            aiSceneAssessment: autoIdentifiedHelp?.explanation,
+            caption: `${chosenOption.title} Photo Evidence`,
+            aiSceneAssessment: chosenOption.kindOfHelp,
           },
         ],
         status: 'reported',
@@ -355,7 +347,7 @@ export default function UserDashboard({
           {
             status: 'reported',
             timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            note: `Auto-identified as ${subcategory}. Text reported to BFP Madrid (${OFFICIAL_MADRID_HOTLINES.bfp.displayNumber}) & MDRRMO (${OFFICIAL_MADRID_HOTLINES.mdrrmo.displayNumber}).`,
+            note: `Incident photo transmitted by citizen. Category selected: ${chosenOption.title}. Text reported to BFP Madrid (${OFFICIAL_MADRID_HOTLINES.bfp.displayNumber}) & MDRRMO (${OFFICIAL_MADRID_HOTLINES.mdrrmo.displayNumber}).`,
             updatedBy: currentUser?.fullName || 'Citizen',
           },
         ],
@@ -364,7 +356,7 @@ export default function UserDashboard({
         responderDistanceKm: distanceKm,
         responderEtaMinutes: eta,
         isIdentified: true,
-        identifiedBy: 'Auto-Vision AI (Madrid Notifier)',
+        identifiedBy: `Citizen Selection: ${chosenOption.title}`,
         identifiedAt: new Date().toISOString(),
         e2eeHash: hash.substring(0, 10).toUpperCase(),
         isEncrypted: true,
@@ -386,7 +378,7 @@ export default function UserDashboard({
       addNotification({
         incidentId: newReport.id,
         title: `Text Sent to BFP & MDRRMO: ${incidentNumber}`,
-        body: `Auto-identified as ${subcategory}. Reported to BFP (${OFFICIAL_MADRID_HOTLINES.bfp.displayNumber}) & MDRRMO (${OFFICIAL_MADRID_HOTLINES.mdrrmo.displayNumber}).`,
+        body: `Reported as ${chosenOption.title}. Dispatched to BFP (${OFFICIAL_MADRID_HOTLINES.bfp.displayNumber}) & MDRRMO (${OFFICIAL_MADRID_HOTLINES.mdrrmo.displayNumber}).`,
         type: 'dispatch',
       });
 
@@ -519,68 +511,92 @@ export default function UserDashboard({
             />
 
             {!photoDataUrl ? (
-              <div className="rounded-3xl border-2 border-dashed border-slate-700 p-6 sm:p-8 bg-slate-900/50 text-center space-y-4">
-                <div className="w-16 h-16 rounded-2xl bg-rose-600/20 text-rose-500 mx-auto flex items-center justify-center shadow-lg">
-                  <Camera className="w-8 h-8" />
-                </div>
-                <div>
-                  <h3 className="text-base font-bold text-white">Upload or Take Emergency Photo</h3>
-                  <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-                    The app will automatically identify what kind of help is needed and text BFP Madrid &amp; MDRRMO.
-                  </p>
+              <div className="space-y-4">
+                {/* STEP 1: Take or Upload Photo */}
+                <div className="rounded-3xl border-2 border-dashed border-rose-500/60 p-6 sm:p-8 bg-slate-900/60 text-center space-y-4 shadow-xl">
+                  <div className="w-16 h-16 rounded-2xl bg-rose-600/20 text-rose-500 mx-auto flex items-center justify-center shadow-lg border border-rose-500/30">
+                    <Camera className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <div className="text-[11px] font-black uppercase tracking-widest text-rose-400 mb-1">
+                      STEP 1 OF 2 &bull; MANDATORY
+                    </div>
+                    <h3 className="text-base sm:text-lg font-black text-white uppercase tracking-tight">
+                      Take or Upload Incident Photo
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+                      Snap live photos of the emergency scene. After taking the photo, you will choose 1 of 4 emergency buttons.
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={() => cameraInputRef.current?.click()}
+                      className="py-3.5 px-6 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-black text-xs uppercase tracking-wider flex items-center gap-2 shadow-xl shadow-rose-950/60 transition active:scale-95"
+                    >
+                      <Camera className="w-4 h-4" />
+                      <span>Take Photo</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="py-3.5 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs uppercase tracking-wider flex items-center gap-2 border border-slate-700 transition active:scale-95"
+                    >
+                      <Upload className="w-4 h-4" />
+                      <span>Choose from Files</span>
+                    </button>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => cameraInputRef.current?.click()}
-                    className="py-3 px-6 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg transition active:scale-95"
-                  >
-                    <Camera className="w-4 h-4" />
-                    <span>Take Photo</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    className="py-3 px-6 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs uppercase tracking-wider flex items-center gap-2 border border-slate-700 transition active:scale-95"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>Choose from Files</span>
-                  </button>
+                {/* STEP 2 PREVIEW: Explaining the 4 choices */}
+                <div className="p-4 rounded-3xl bg-slate-900/40 border border-slate-800 space-y-2 opacity-75">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                      STEP 2 &bull; CHOOSE 1 OF 4 BUTTONS (AFTER PHOTO)
+                    </span>
+                    <span className="text-[10px] text-amber-400 bg-amber-950/60 border border-amber-800 px-2 py-0.5 rounded-lg">
+                      Take photo first to unlock
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    {MADRID_GUIDANCE_OPTIONS.map((item) => (
+                      <div
+                        key={item.id}
+                        className="p-2.5 rounded-2xl border border-slate-800/80 bg-slate-950/40 text-left opacity-60"
+                      >
+                        <div className="text-xl mb-1">{item.icon}</div>
+                        <div className="text-xs font-bold text-slate-300">{item.title}</div>
+                        <div className="text-[10px] text-slate-500 line-clamp-1">{item.subtitle}</div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             ) : (
-              <div className="space-y-3">
-                {/* Photo Preview */}
+              <div className="space-y-4">
+                {/* Photo Captured Preview */}
                 <div className="rounded-3xl overflow-hidden border-2 border-rose-500 bg-slate-900 relative shadow-2xl">
                   <img
                     src={photoDataUrl}
                     alt="Emergency Preview"
-                    className="w-full h-64 sm:h-72 object-cover"
+                    className="w-full h-60 sm:h-64 object-cover"
                   />
-                  <div className="p-3 bg-slate-900/90 backdrop-blur-md flex items-center justify-between gap-2 flex-wrap">
-                    <div className="text-xs font-semibold text-white flex items-center gap-2">
+                  <div className="p-3 bg-slate-900/95 backdrop-blur-md flex items-center justify-between gap-2 flex-wrap">
+                    <div className="text-xs font-bold text-white flex items-center gap-2">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                      <span>
-                        {hasUserUploadedPhoto
-                          ? 'Photo attached from device'
-                          : selectedGuidance
-                          ? `Guidance selected: ${MADRID_GUIDANCE_OPTIONS.find((c) => c.id === selectedGuidance)?.title} (Blank • No photo attached)`
-                          : 'Incident guidance loaded'}
-                      </span>
+                      <span>📸 Emergency Photo Captured &amp; Ready</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      {!hasUserUploadedPhoto && (
-                        <button
-                          type="button"
-                          onClick={() => cameraInputRef.current?.click()}
-                          className="py-1 px-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold flex items-center gap-1 transition shadow"
-                        >
-                          <Camera className="w-3.5 h-3.5" />
-                          <span>Attach Photo</span>
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => cameraInputRef.current?.click()}
+                        className="py-1.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition border border-slate-700"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        <span>Retake Photo</span>
+                      </button>
                       <button
                         type="button"
                         onClick={() => {
@@ -589,161 +605,128 @@ export default function UserDashboard({
                           setSelectedGuidance(null);
                           setAutoIdentifiedHelp(null);
                         }}
-                        className="py-1 px-3 rounded-xl bg-slate-800 text-slate-300 text-xs hover:bg-slate-700 transition"
+                        className="py-1.5 px-3 rounded-xl bg-slate-800 text-slate-300 text-xs hover:bg-rose-950 hover:text-rose-200 transition"
                       >
-                        Reset
+                        Clear
                       </button>
                     </div>
                   </div>
                 </div>
 
-                {/* AUTOMATICALLY IDENTIFIED HELP CARD */}
-                <div className="p-4 rounded-3xl bg-slate-900 border-2 border-amber-500/60 shadow-xl space-y-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 text-amber-400 animate-spin" />
-                      <span className="text-xs font-bold uppercase tracking-wider text-amber-400">
-                        Automatically Identified Help Needed
-                      </span>
+                {/* THE 4 BUTTONS: Structural Fire, Grass Fire, Vehicular Accident, Medical Assistance */}
+                <div className="p-4 sm:p-5 rounded-3xl bg-slate-900 border-2 border-slate-700 shadow-2xl space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div>
+                      <div className="text-[11px] font-black uppercase tracking-widest text-amber-400">
+                        STEP 2 OF 2 &bull; CHOOSE 1 OF 4 BUTTONS
+                      </div>
+                      <h4 className="text-sm sm:text-base font-black text-white uppercase tracking-tight">
+                        Select Incident Emergency Type
+                      </h4>
                     </div>
-                    {isAnalyzingPhoto ? (
-                      <span className="text-[11px] text-slate-400 flex items-center gap-1">
-                        <Loader2 className="w-3 h-3 animate-spin text-amber-400" />
-                        Analyzing...
+                    {selectedGuidance ? (
+                      <span className="text-[11px] font-black text-emerald-400 bg-emerald-950/80 border border-emerald-800 px-2.5 py-1 rounded-xl flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5" />
+                        <span>{MADRID_GUIDANCE_OPTIONS.find((c) => c.id === selectedGuidance)?.title} Selected</span>
                       </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-950 text-amber-300 border border-amber-800">
-                        CONFIDENCE: {autoIdentifiedHelp?.confidence || 96}%
+                      <span className="text-[10px] font-bold text-amber-300 bg-amber-950/80 border border-amber-800 px-2.5 py-1 rounded-xl animate-pulse">
+                        👇 Tap 1 button below to continue
                       </span>
                     )}
                   </div>
 
-                  {isAnalyzingPhoto ? (
-                    <div className="py-2 text-xs text-slate-400 flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin text-amber-400" />
-                      <span>Analyzing scene and identifying emergency requirements...</span>
-                    </div>
-                  ) : autoIdentifiedHelp ? (
-                    <div className="space-y-1.5 pt-1">
-                      <div className="text-base font-bold text-white flex items-center gap-2">
-                        <span>
-                          {autoIdentifiedHelp.category === 'fire'
-                            ? '🔥'
-                            : autoIdentifiedHelp.category === 'vehicular'
-                            ? '🚗'
-                            : autoIdentifiedHelp.category === 'medical'
-                            ? '🚑'
-                            : '🛡️'}
+                  {/* STRICT 4 BUTTONS */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {MADRID_GUIDANCE_OPTIONS.map((item) => {
+                      const isSelected = selectedGuidance === item.id;
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => handleSelectGuidanceCategory(item)}
+                          className={`relative p-3.5 rounded-2xl border-2 text-left transition-all flex flex-col justify-between group active:scale-[0.98] ${
+                            isSelected
+                              ? `${item.activeRing} ${item.activeBg} ring-2 shadow-xl scale-[1.01]`
+                              : 'border-slate-800 bg-slate-950/80 hover:border-slate-700 hover:bg-slate-900'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <span className="text-2xl sm:text-3xl">{item.icon}</span>
+                            {isSelected && (
+                              <span className="px-2 py-0.5 rounded-full text-[9px] font-black uppercase bg-white text-slate-950 shadow-md">
+                                SELECTED ✓
+                              </span>
+                            )}
+                          </div>
+
+                          <div className="mt-2.5">
+                            <div
+                              className={`text-sm font-black tracking-tight ${
+                                isSelected ? 'text-white' : 'text-slate-200'
+                              }`}
+                            >
+                              {item.title}
+                            </div>
+                            <div className="text-[11px] text-slate-400 leading-tight mt-0.5">
+                              {item.subtitle}
+                            </div>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Response Summary when 1 of 4 buttons is selected */}
+                  {selectedGuidance && (
+                    <div className="p-3 rounded-2xl bg-slate-950 border border-slate-800 space-y-1.5 text-xs text-slate-300 animate-in fade-in">
+                      <div className="font-bold text-white flex items-center gap-1.5">
+                        <span>🚒 Responding Unit:</span>
+                        <span className="text-amber-400">
+                          {MADRID_GUIDANCE_OPTIONS.find((c) => c.id === selectedGuidance)?.recommendedUnitName}
                         </span>
-                        <span>{autoIdentifiedHelp.kindOfHelp}</span>
                       </div>
-
-                      <div className="text-xs text-slate-300">
-                        <strong>Classification:</strong> {autoIdentifiedHelp.subcategory}
-                      </div>
-
-                      <div className="text-xs text-emerald-400 font-medium">
-                        <strong>Assigned Response:</strong> {autoIdentifiedHelp.recommendedUnitName}
-                      </div>
-
-                      <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-400 mt-1">
-                        <div className="text-slate-300 font-semibold mb-0.5">Automated Scene Assessment:</div>
-                        {autoIdentifiedHelp.explanation}
-                      </div>
-
-                      <div className="text-[11px] text-amber-300/90 font-medium mt-1">
-                        💡 <strong>Safety advice:</strong> {autoIdentifiedHelp.civilianAdvice}
+                      <div className="text-[11px] text-slate-400">
+                        {MADRID_GUIDANCE_OPTIONS.find((c) => c.id === selectedGuidance)?.safetyAdvice}
                       </div>
                     </div>
-                  ) : null}
+                  )}
                 </div>
               </div>
             )}
 
-            {/* Madrid Incident Hazard Guidance Photos - Blank No Photos Yet */}
-            <div className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2.5">
-              <div className="flex items-center justify-between flex-wrap gap-1">
-                <div>
-                  <div className="text-[11px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>Madrid Incident Guidance Photos</span>
-                    <span className="px-2 py-0.5 rounded-full text-[9px] bg-slate-800 text-slate-400 border border-slate-700 font-bold">
-                      Blank &bull; No Photos Yet
-                    </span>
-                  </div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">
-                    Client can only choose from the 4 emergency incident categories below:
-                  </div>
-                </div>
-                {selectedGuidance && (
-                  <span className="text-[10px] font-black text-rose-400 bg-rose-950/70 border border-rose-800 px-2 py-0.5 rounded-lg flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-pulse"></span>
-                    <span>{MADRID_GUIDANCE_OPTIONS.find((c) => c.id === selectedGuidance)?.title} Selected</span>
-                  </span>
-                )}
-              </div>
-
-              {/* Strict 4 Choices: House Fire, Grass Fire, Vehicle Crash, Medical Attention */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                {MADRID_GUIDANCE_OPTIONS.map((item) => {
-                  const isSelected = selectedGuidance === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      type="button"
-                      onClick={() => handleSelectGuidanceCategory(item)}
-                      className={`relative p-2.5 rounded-2xl border text-left transition flex flex-col justify-between group ${
-                        isSelected
-                          ? 'border-rose-500 bg-rose-950/40 ring-2 ring-rose-500/60 shadow-lg shadow-rose-950/50'
-                          : 'border-slate-800 bg-slate-950/80 hover:border-slate-700 hover:bg-slate-900/90'
-                      }`}
-                    >
-                      {/* Blank Photo Placeholder Frame (No photos yet) */}
-                      <div className="w-full h-16 rounded-xl border border-dashed border-slate-700 bg-slate-900/90 flex flex-col items-center justify-center gap-1 overflow-hidden relative group-hover:border-slate-600 transition">
-                        <span className="text-xl">{item.icon}</span>
-                        <span className="text-[9px] font-semibold text-slate-500 tracking-tight">
-                          No photo yet
-                        </span>
-                        {isSelected && (
-                          <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-600 text-white flex items-center justify-center text-[10px] font-black shadow">
-                            ✓
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="mt-2">
-                        <div className={`text-xs font-black tracking-tight ${isSelected ? 'text-rose-300' : 'text-slate-200'}`}>
-                          {item.title}
-                        </div>
-                        <div className="text-[10px] text-slate-400 leading-tight mt-0.5 line-clamp-2">
-                          {item.subtitle}
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* Big Send Emergency Photo / Report Button */}
             <button
               type="submit"
-              disabled={isSubmitting || (!photoDataUrl && !selectedGuidance)}
-              className="w-full py-4 rounded-2xl bg-rose-600 hover:bg-rose-500 disabled:opacity-40 text-white font-black text-sm uppercase tracking-wider transition shadow-xl shadow-rose-950/70 flex items-center justify-center gap-2 active:scale-95"
+              disabled={isSubmitting || !photoDataUrl || !selectedGuidance}
+              className={`w-full py-4 rounded-2xl font-black text-sm uppercase tracking-wider transition shadow-xl flex items-center justify-center gap-2 active:scale-95 ${
+                !photoDataUrl
+                  ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                  : !selectedGuidance
+                  ? 'bg-amber-600 hover:bg-amber-500 text-slate-950 shadow-amber-950/70 border border-amber-400'
+                  : 'bg-rose-600 hover:bg-rose-500 text-white shadow-rose-950/70 border border-rose-400 animate-pulse'
+              }`}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
                   <span>Transmitting to BFP &amp; MDRRMO Responders...</span>
                 </>
+              ) : !photoDataUrl ? (
+                <>
+                  <Camera className="w-5 h-5" />
+                  <span>TAKE OR UPLOAD PHOTO FIRST</span>
+                </>
+              ) : !selectedGuidance ? (
+                <>
+                  <AlertCircle className="w-5 h-5" />
+                  <span>CHOOSE 1 OF THE 4 BUTTONS ABOVE TO TRANSMIT</span>
+                </>
               ) : (
                 <>
                   <Send className="w-5 h-5" />
                   <span>
-                    {hasUserUploadedPhoto
-                      ? 'TRANSMIT PHOTO & TEXT BFP & MDRRMO'
-                      : selectedGuidance
-                      ? `TRANSMIT ${MADRID_GUIDANCE_OPTIONS.find((c) => c.id === selectedGuidance)?.title.toUpperCase()} REPORT`
-                      : 'TRANSMIT EMERGENCY REPORT'}
+                    TRANSMIT {MADRID_GUIDANCE_OPTIONS.find((c) => c.id === selectedGuidance)?.title.toUpperCase()} REPORT
                   </span>
                 </>
               )}

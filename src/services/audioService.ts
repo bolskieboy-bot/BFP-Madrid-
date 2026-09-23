@@ -189,32 +189,64 @@ export function startContinuousStationAlarm(reportDetails?: { incidentNumber?: s
   }
 }
 
+export interface BackgroundNotificationDetails {
+  id?: string;
+  incidentNumber?: string;
+  location?: string;
+  photoUrl?: string;
+  hasPhoto?: boolean;
+  title?: string;
+}
+
 /**
  * Dispatches a persistent, wake-up Web Notification with severe vibration pattern.
- * Uses Service Worker showNotification if active so it can sound even if tab is in background.
+ * Uses Service Worker showNotification if active so it can sound even if tab is in background or closed.
  */
-export function dispatchBackgroundAdminNotification(details?: { incidentNumber?: string; location?: string }): void {
+export function dispatchBackgroundAdminNotification(details?: BackgroundNotificationDetails): void {
   if (typeof window === 'undefined') return;
 
-  const title = `🚨 [CRITICAL DISPATCH] BFP MADRID EMERGENCY!`;
-  const body = details?.incidentNumber
+  const hasPhoto = details?.hasPhoto || !!details?.photoUrl;
+  const title = hasPhoto
+    ? `🚨 [PHOTO ALERT] EMERGENCY: ${details?.incidentNumber || 'NEW INCIDENT'}`
+    : `🚨 [CRITICAL DISPATCH] BFP MADRID EMERGENCY!`;
+
+  const body = hasPhoto
+    ? `📸 Incident photo submitted at ${details?.location || 'Madrid, Surigao del Sur'} (${details?.title || 'Emergency'}). Duty Admin: Tap to view photo & sound station siren!`
+    : details?.incidentNumber
     ? `Incoming incident ${details.incidentNumber} reported at ${details.location || 'Madrid, Surigao del Sur'}! Station siren sounding!`
-    : `Emergency incident distress received! Duty dispatchers Admin1 & Admin2 respond immediately!`;
+    : `Emergency incident distress received! Duty dispatchers respond immediately!`;
 
   const notificationOptions: any = {
     body,
-    icon: '/bfp-app-icon.svg',
-    badge: '/bfp-app-icon.svg',
-    tag: 'bfp-madrid-critical-alarm',
+    icon: '/ChatGPT Image Sep 23, 2026, 12_48_31 PM.png',
+    badge: '/ChatGPT Image Sep 23, 2026, 12_48_31 PM.png',
+    tag: `bfp-madrid-critical-photo-alarm-${details?.id || 'live'}`,
     requireInteraction: true, // Remains on mobile screen until duty officer acknowledges!
     renotify: true,
-    vibrate: [1200, 200, 1200, 200, 1600, 250, 2400],
-    data: { url: '/?adminAlarm=true', timestamp: Date.now() },
+    vibrate: [1500, 250, 1500, 250, 2000, 250, 3000],
+    data: {
+      url: `/?adminAlarm=true&incidentId=${details?.id || ''}&hasPhoto=${hasPhoto ? '1' : '0'}`,
+      timestamp: Date.now(),
+      incidentId: details?.id,
+      hasPhoto,
+    },
+    actions: [
+      { action: 'respond', title: '🚨 OPEN DISPATCH & SIREN' },
+      { action: 'view_photo', title: '📸 VIEW INCIDENT PHOTO' },
+    ],
   };
 
+  if (details?.photoUrl && !details.photoUrl.startsWith('data:')) {
+    notificationOptions.image = details.photoUrl;
+  }
+
   // Try service worker showNotification first (can alert even when app is minimized/closed)
-  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+  if ('serviceWorker' in navigator) {
     navigator.serviceWorker.ready.then((reg) => {
+      reg.active?.postMessage({
+        type: hasPhoto ? 'INCIDENT_PHOTO_ALERT' : 'ADMIN_EMERGENCY_ALARM_TRIGGERED',
+        details: { ...details, hasPhoto },
+      });
       reg.showNotification(title, notificationOptions).catch(() => {});
     }).catch(() => {});
   } else if ('Notification' in window && Notification.permission === 'granted') {
@@ -230,7 +262,7 @@ export function dispatchBackgroundAdminNotification(details?: { incidentNumber?:
     if ('BroadcastChannel' in window) {
       const channel = new BroadcastChannel('bfp_madrid_emergency_channel');
       channel.postMessage({
-        type: 'ADMIN_EMERGENCY_ALARM_TRIGGERED',
+        type: hasPhoto ? 'INCIDENT_PHOTO_ALERT' : 'ADMIN_EMERGENCY_ALARM_TRIGGERED',
         details,
         timestamp: Date.now(),
       });

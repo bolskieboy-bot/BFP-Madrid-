@@ -30,27 +30,66 @@ interface IncidentReportModalProps {
   isOnline: boolean;
 }
 
-// Realistic Madrid emergency sample photo presets for instant testing without camera
-const SAMPLE_PRESETS = [
+// The 4 allowed client emergency categories:
+// Structural Fire, Grass Fire, Vehicular Accident, Medical Assistance
+export type ModalEmergencyCategory = 'structural_fire' | 'grass_fire' | 'vehicular_accident' | 'medical_assistance';
+
+interface ModalEmergencyCategoryItem {
+  id: ModalEmergencyCategory;
+  title: 'Structural Fire' | 'Grass Fire' | 'Vehicular Accident' | 'Medical Assistance';
+  subtitle: string;
+  icon: string;
+  category: 'fire' | 'vehicular' | 'medical';
+  subcategory: string;
+  kindOfHelp: string;
+  activeRing: string;
+  activeBg: string;
+}
+
+const MODAL_CATEGORY_OPTIONS: ModalEmergencyCategoryItem[] = [
   {
-    name: 'House Smoke (Linungao)',
-    url: 'https://images.unsplash.com/photo-1542385151-efd9000785a0?auto=format&fit=crop&w=800&q=80',
-    caption: 'Smoke coming from residential roof eaves',
+    id: 'structural_fire',
+    title: 'Structural Fire',
+    subtitle: 'Residential house, commercial building or roof fire',
+    icon: '🔥',
+    category: 'fire',
+    subcategory: 'Structural Fire',
+    kindOfHelp: 'Structural Fire Suppression & BFP Engine Needed',
+    activeRing: 'ring-rose-500 border-rose-500',
+    activeBg: 'bg-rose-950/70',
   },
   {
-    name: 'Highway Crash (Songkit)',
-    url: 'https://images.unsplash.com/photo-1568605117036-5fe5e7bab0b7?auto=format&fit=crop&w=800&q=80',
-    caption: 'Two vehicles collided on highway curve',
+    id: 'grass_fire',
+    title: 'Grass Fire',
+    subtitle: 'Agricultural field, grassland or brush blaze',
+    icon: '🌾',
+    category: 'fire',
+    subcategory: 'Grass Fire',
+    kindOfHelp: 'Grass Fire Suppression & Wildfire Crew Needed',
+    activeRing: 'ring-amber-500 border-amber-500',
+    activeBg: 'bg-amber-950/70',
   },
   {
-    name: 'Medical Aid Call (Bayogo)',
-    url: 'https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=800&q=80',
-    caption: 'Patient requiring emergency transfer',
+    id: 'vehicular_accident',
+    title: 'Vehicular Accident',
+    subtitle: 'Highway crash, collision or vehicle rollover',
+    icon: '🚗',
+    category: 'vehicular',
+    subcategory: 'Vehicular Accident',
+    kindOfHelp: 'Vehicular Extrication & Emergency Ambulance Response Needed',
+    activeRing: 'ring-sky-500 border-sky-500',
+    activeBg: 'bg-sky-950/70',
   },
   {
-    name: 'Electrical Post Spark',
-    url: 'https://images.unsplash.com/photo-1509228468518-180dd4864904?auto=format&fit=crop&w=800&q=80',
-    caption: 'Electrical lines sparking over road',
+    id: 'medical_assistance',
+    title: 'Medical Assistance',
+    subtitle: 'Acute medical emergency, cardiac or severe trauma',
+    icon: '🚑',
+    category: 'medical',
+    subcategory: 'Medical Assistance',
+    kindOfHelp: 'Emergency Medical Assistance & Rapid Transport Needed',
+    activeRing: 'ring-emerald-500 border-emerald-500',
+    activeBg: 'bg-emerald-950/70',
   },
 ];
 
@@ -64,6 +103,7 @@ export default function IncidentReportModal({
 }: IncidentReportModalProps) {
   const [photoDataUrl, setPhotoDataUrl] = useState<string | null>(null);
   const [photoCaption, setPhotoCaption] = useState<string>('');
+  const [selectedCategory, setSelectedCategory] = useState<ModalEmergencyCategory | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -96,18 +136,19 @@ export default function IncidentReportModal({
     reader.readAsDataURL(file);
   };
 
-  const handleSelectPreset = (preset: { name: string; url: string; caption: string }) => {
-    setPhotoDataUrl(preset.url);
-    setPhotoCaption(preset.caption);
-    setErrorMsg(null);
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!photoDataUrl) {
       setErrorMsg('Please capture or upload a photo of the emergency scene first.');
       return;
     }
+
+    if (!selectedCategory) {
+      setErrorMsg('Please select 1 of the 4 buttons: Structural Fire, Grass Fire, Vehicular Accident, or Medical Assistance.');
+      return;
+    }
+
+    const chosenOption = MODAL_CATEGORY_OPTIONS.find((c) => c.id === selectedCategory)!;
 
     setIsSubmitting(true);
     setErrorMsg(null);
@@ -129,18 +170,18 @@ export default function IncidentReportModal({
         id: 'photo-' + Date.now(),
         dataUrl: photoDataUrl,
         timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-        caption: photoCaption || 'Citizen Emergency Photo',
+        caption: `${chosenOption.title} Emergency Photo`,
+        aiSceneAssessment: chosenOption.kindOfHelp,
       };
 
-      // Citizen report is created with category 'unidentified' - Admin will classify and identify it!
       const newReport: IncidentReport = {
         id: 'rep-' + Date.now(),
         incidentNumber,
-        category: 'unidentified',
-        subcategory: 'Pending Admin Photo Identification',
-        severity: 'high',
-        title: 'Emergency Photo Report (Awaiting Admin Triage)',
-        description: 'Citizen transmitted photo of distress scene. Station dispatchers will identify hazard type and dispatch fleet.',
+        category: chosenOption.category,
+        subcategory: chosenOption.subcategory,
+        severity: chosenOption.category === 'fire' || chosenOption.category === 'medical' ? 'critical' : 'high',
+        title: `${chosenOption.title} at Brgy. ${barangay}`,
+        description: `Citizen live emergency photo transmitted. Hazard classified as ${chosenOption.title}. Dispatched to BFP Madrid & MDRRMO Madrid.`,
         location: {
           latitude: lat,
           longitude: lng,
@@ -156,17 +197,18 @@ export default function IncidentReportModal({
           {
             status: 'reported',
             timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
-            note: 'Photo transmitted by citizen. Dispatcher review required to identify incident type.',
+            note: `Photo transmitted by citizen. Category selected: ${chosenOption.title}.`,
             updatedBy: currentUser?.fullName || 'Citizen User',
           },
         ],
         responderDistanceKm: distanceKm,
         responderEtaMinutes: eta,
-        isIdentified: false,
+        isIdentified: true,
+        identifiedBy: `Citizen Selection: ${chosenOption.title}`,
         e2eeHash: hash.substring(0, 12).toUpperCase(),
         isEncrypted: true,
         smsSent: true,
-        smsRecipient: '09178192371',
+        smsRecipient: '09317218765, 09985521911',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       };
@@ -184,7 +226,7 @@ export default function IncidentReportModal({
       addNotification({
         incidentId: newReport.id,
         title: `📸 Photo Sent: ${incidentNumber}`,
-        body: `Emergency photo transmitted. Madrid BFP & MDRRMO Dispatchers are currently identifying the scene.`,
+        body: `Reported as ${chosenOption.title}. Transmitted to BFP & MDRRMO.`,
         type: 'dispatch',
       });
 
@@ -318,30 +360,59 @@ export default function IncidentReportModal({
             )}
           </div>
 
-          {/* Quick Demo Photo Presets for Easy Desktop Testing */}
-          <div>
-            <div className="text-[11px] font-bold uppercase text-slate-400 mb-1.5 flex items-center justify-between">
-              <span>Quick Test Photo Presets (1-Tap Select)</span>
-              <span className="text-[10px] text-rose-400 font-mono">Madrid Scenes</span>
+          {/* CHOOSE 1 OF 4 EMERGENCY BUTTONS */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-black uppercase tracking-wider text-amber-400">
+                CHOOSE 1 OF 4 EMERGENCY BUTTONS:
+              </span>
+              {selectedCategory ? (
+                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-950/70 border border-emerald-800 px-2 py-0.5 rounded-lg">
+                  {MODAL_CATEGORY_OPTIONS.find((c) => c.id === selectedCategory)?.title} Selected
+                </span>
+              ) : (
+                <span className="text-[10px] text-slate-400">
+                  Select after taking photo
+                </span>
+              )}
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {SAMPLE_PRESETS.map((preset) => (
-                <button
-                  key={preset.name}
-                  type="button"
-                  onClick={() => handleSelectPreset(preset)}
-                  className="p-1.5 rounded-xl border border-slate-800 bg-slate-950/60 hover:border-rose-500/60 text-left transition group overflow-hidden"
-                >
-                  <img
-                    src={preset.url}
-                    alt={preset.name}
-                    className="w-full h-14 object-cover rounded-lg group-hover:scale-105 transition-transform"
-                  />
-                  <div className="text-[10px] font-bold text-slate-300 mt-1 line-clamp-1">
-                    {preset.name}
-                  </div>
-                </button>
-              ))}
+
+            <div className="grid grid-cols-2 gap-2.5">
+              {MODAL_CATEGORY_OPTIONS.map((item) => {
+                const isSelected = selectedCategory === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedCategory(item.id);
+                      setErrorMsg(null);
+                    }}
+                    className={`p-3 rounded-2xl border-2 text-left transition-all flex flex-col justify-between ${
+                      isSelected
+                        ? `${item.activeRing} ${item.activeBg} ring-2 shadow-lg`
+                        : 'border-slate-800 bg-slate-950/80 hover:border-slate-700 hover:bg-slate-900'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-2xl">{item.icon}</span>
+                      {isSelected && (
+                        <span className="px-1.5 py-0.5 rounded-md text-[9px] font-black bg-white text-slate-950 uppercase">
+                          ✓
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-2">
+                      <div className={`text-xs font-black ${isSelected ? 'text-white' : 'text-slate-200'}`}>
+                        {item.title}
+                      </div>
+                      <div className="text-[10px] text-slate-400 line-clamp-1 mt-0.5">
+                        {item.subtitle}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -363,10 +434,10 @@ export default function IncidentReportModal({
             </span>
           </div>
 
-          {/* Single Action Button */}
+          {/* Action Button */}
           <button
             type="submit"
-            disabled={isSubmitting || !photoDataUrl}
+            disabled={isSubmitting || !photoDataUrl || !selectedCategory}
             className="w-full py-4 px-6 rounded-2xl bg-gradient-to-r from-rose-600 via-red-600 to-rose-700 hover:from-rose-500 hover:to-red-500 disabled:opacity-40 text-white font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-rose-950/60 flex items-center justify-center gap-2 border border-white/20"
           >
             {isSubmitting ? (
@@ -374,10 +445,22 @@ export default function IncidentReportModal({
                 <Loader2 className="w-5 h-5 animate-spin" />
                 <span>Transmitting Photo to Station...</span>
               </>
+            ) : !photoDataUrl ? (
+              <>
+                <Camera className="w-5 h-5" />
+                <span>TAKE OR UPLOAD PHOTO FIRST</span>
+              </>
+            ) : !selectedCategory ? (
+              <>
+                <AlertCircle className="w-5 h-5" />
+                <span>CHOOSE 1 OF 4 BUTTONS TO TRANSMIT</span>
+              </>
             ) : (
               <>
                 <Send className="w-5 h-5" />
-                <span>SEND EMERGENCY PHOTO</span>
+                <span>
+                  TRANSMIT {MODAL_CATEGORY_OPTIONS.find((c) => c.id === selectedCategory)?.title.toUpperCase()} REPORT
+                </span>
               </>
             )}
           </button>

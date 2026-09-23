@@ -185,24 +185,15 @@ export default function ModeLoginGate({
           {/* ADMIN LOGIN VIEW */}
           {mode === 'admin' ? (
             <form onSubmit={handleLoginSubmit} className="space-y-4">
-              {/* Constant Admin Notice Card */}
-              <div className="p-3 rounded-2xl bg-slate-950/80 border border-amber-500/40 text-[11px] space-y-1.5">
+              {/* Official Municipal Admin Gate Notice */}
+              <div className="p-3.5 rounded-2xl bg-slate-950/80 border border-amber-500/40 text-[11px] space-y-1.5">
                 <div className="font-bold text-amber-400 flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Constant Official Admin Accounts:</span>
+                  <Shield className="w-4 h-4 text-amber-400" />
+                  <span>Command Dispatch Authorization:</span>
                 </div>
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  <div className="p-2 rounded-xl bg-slate-900 border border-slate-800">
-                    <div className="font-mono font-bold text-amber-300">Admin1</div>
-                    <div className="text-[10px] text-slate-400">Password: <span className="font-mono text-white font-bold">1234567</span></div>
-                    <div className="text-[9px] text-slate-500 mt-0.5">BFP Fire Commander</div>
-                  </div>
-                  <div className="p-2 rounded-xl bg-slate-900 border border-slate-800">
-                    <div className="font-mono font-bold text-sky-300">Admin2</div>
-                    <div className="text-[10px] text-slate-400">Password: <span className="font-mono text-white font-bold">1234567</span></div>
-                    <div className="text-[9px] text-slate-500 mt-0.5">MDRRMO Chief</div>
-                  </div>
-                </div>
+                <p className="text-slate-300 text-[11px] leading-relaxed">
+                  Restricted to authorized emergency personnel (BFP Fire Station &amp; MDRRMO Madrid). Please enter your assigned station administrator credentials to access command controls.
+                </p>
               </div>
 
               <div>
@@ -214,7 +205,7 @@ export default function ModeLoginGate({
                     type="text"
                     value={identifier}
                     onChange={(e) => setIdentifier(e.target.value)}
-                    placeholder="Enter Admin1 or Admin2"
+                    placeholder="Enter admin username"
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500 font-mono"
                     autoFocus
                   />
@@ -231,7 +222,7 @@ export default function ModeLoginGate({
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter admin password (1234567)"
+                    placeholder="Enter admin password"
                     className="w-full bg-slate-800 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-amber-500 font-mono pr-10"
                   />
                   <button
@@ -240,39 +231,6 @@ export default function ModeLoginGate({
                     className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-200"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Quick Fill Buttons */}
-              <div className="pt-1">
-                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block mb-1.5">
-                  1-Tap Fill Admin Credentials:
-                </span>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIdentifier('Admin1');
-                      setPassword('1234567');
-                      setErrorMsg(null);
-                    }}
-                    className="py-1.5 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition"
-                  >
-                    <div className="text-[11px] font-bold text-amber-400">🚒 Admin 1 (BFP)</div>
-                    <div className="text-[9px] text-slate-400">Pass: 1234567</div>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIdentifier('Admin2');
-                      setPassword('1234567');
-                      setErrorMsg(null);
-                    }}
-                    className="py-1.5 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left transition"
-                  >
-                    <div className="text-[11px] font-bold text-sky-400">🚑 Admin 2 (MDRRMO)</div>
-                    <div className="text-[9px] text-slate-400">Pass: 1234567</div>
                   </button>
                 </div>
               </div>

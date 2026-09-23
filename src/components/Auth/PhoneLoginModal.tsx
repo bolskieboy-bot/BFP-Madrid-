@@ -322,44 +322,30 @@ export default function PhoneLoginModal({
               <ArrowRight className="w-4 h-4" />
             </button>
 
-            {/* Quick Demo & Pre-configured Logins */}
+            {/* Demo Citizen Sign-In Preset */}
             <div className="pt-2 border-t border-slate-800">
               <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
-                Quick Sign-In Presets:
+                Quick Resident Demo Login:
               </span>
-              <div className="grid grid-cols-3 gap-1.5">
+              <div>
                 <button
                   type="button"
                   onClick={() => {
                     setLoginIdentifier('citizen_sample');
                     setLoginPassword('citizen123');
                   }}
-                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left text-[10px] transition"
+                  className="w-full p-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left text-[11px] transition flex items-center justify-between"
                 >
-                  <div className="font-bold text-emerald-400">👤 Citizen</div>
-                  <div className="text-slate-400 text-[9px] truncate">Maria Santos</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLoginIdentifier('Admin1');
-                    setLoginPassword('1234567');
-                  }}
-                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left text-[10px] transition"
-                >
-                  <div className="font-bold text-amber-400">🚒 Admin 1</div>
-                  <div className="text-slate-400 text-[9px] truncate">Pass: 1234567</div>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setLoginIdentifier('Admin2');
-                    setLoginPassword('1234567');
-                  }}
-                  className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-left text-[10px] transition"
-                >
-                  <div className="font-bold text-sky-400">🚑 Admin 2</div>
-                  <div className="text-slate-400 text-[9px] truncate">Pass: 1234567</div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">👤</span>
+                    <div>
+                      <div className="font-bold text-emerald-400">Resident Demo Account</div>
+                      <div className="text-slate-400 text-[10px]">Maria Santos &bull; Brgy. Linungao</div>
+                    </div>
+                  </div>
+                  <span className="text-[10px] text-emerald-400 font-bold px-2 py-0.5 rounded bg-emerald-950/60 border border-emerald-800/60">
+                    Tap to Fill Demo
+                  </span>
                 </button>
               </div>
             </div>

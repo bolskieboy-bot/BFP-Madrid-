@@ -323,7 +323,7 @@ export default function AdminResponderDashboard({
                   ? 'bg-amber-500 text-slate-950'
                   : 'bg-slate-800 text-amber-300 hover:bg-slate-700'
               }`}
-              title="Admin1 (Password: admin)"
+              title="Admin1 - BFP Fire Commander"
             >
               Admin1
             </button>
@@ -337,7 +337,7 @@ export default function AdminResponderDashboard({
                   ? 'bg-amber-500 text-slate-950'
                   : 'bg-slate-800 text-amber-300 hover:bg-slate-700'
               }`}
-              title="Admin2 (Password: admin)"
+              title="Admin2 - MDRRMO Chief"
             >
               Admin2
             </button>

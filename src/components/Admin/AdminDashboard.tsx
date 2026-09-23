@@ -17,6 +17,8 @@ import {
   Shield,
   Settings,
   VolumeX,
+  Bell,
+  Smartphone,
 } from 'lucide-react';
 import {
   IncidentCategory,
@@ -34,6 +36,11 @@ import {
   stopAllAlarmSounds,
   playRadioDispatchChime,
 } from '../../services/audioService';
+import {
+  getNotificationPermissionStatus,
+  requestBackgroundAlarmPermission,
+  scheduleTestLockScreenAlarm,
+} from '../../services/backgroundAlarmService';
 import LeafletEmergencyMap from '../Map/LeafletEmergencyMap';
 import BfpMadridLogo from '../Common/BfpMadridLogo';
 import AppDetailsEditor from './AppDetailsEditor';
@@ -140,6 +147,35 @@ export default function AdminDashboard({
   const [identUnitId, setIdentUnitId] = useState<string>('unit-bfp-amb-01');
   const [isEditingIdent, setIsEditingIdent] = useState(false);
   const [enlargedPhoto, setEnlargedPhoto] = useState<string | null>(null);
+
+  // Background Lock-Screen Notification states
+  const [notificationPerm, setNotificationPerm] = useState(getNotificationPermissionStatus());
+  const [drillCountdown, setDrillCountdown] = useState<number | null>(null);
+
+  const handleEnableNotifications = async () => {
+    const granted = await requestBackgroundAlarmPermission();
+    setNotificationPerm(granted ? 'granted' : 'denied');
+  };
+
+  const handleRunDrill = async () => {
+    let currentPerm = notificationPerm;
+    if (currentPerm !== 'granted') {
+      const granted = await requestBackgroundAlarmPermission();
+      currentPerm = granted ? 'granted' : 'denied';
+      setNotificationPerm(currentPerm);
+    }
+    setDrillCountdown(5);
+    scheduleTestLockScreenAlarm(5);
+    const timer = setInterval(() => {
+      setDrillCountdown((prev) => {
+        if (!prev || prev <= 1) {
+          clearInterval(timer);
+          return null;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   // Current active report
   const currentReport =
@@ -412,6 +448,29 @@ export default function AdminDashboard({
         </div>
       )}
 
+      {/* TEST CLOSED-APP DRILL COUNTDOWN BANNER */}
+      {drillCountdown !== null && (
+        <div className="bg-gradient-to-r from-amber-600 via-rose-600 to-amber-600 text-white px-4 py-2.5 text-xs sm:text-sm font-bold flex items-center justify-between shadow-2xl z-30 animate-pulse border-b border-amber-400">
+          <div className="flex items-center gap-2.5">
+            <Smartphone className="w-5 h-5 text-amber-200 animate-bounce shrink-0" />
+            <div>
+              <div className="flex items-center gap-2">
+                <span>LOCK PHONE OR CLOSE/MINIMIZE THIS TAB NOW!</span>
+                <span className="font-mono text-base font-black px-2 py-0.5 rounded bg-slate-950 text-amber-300">
+                  {drillCountdown}s
+                </span>
+              </div>
+              <div className="text-[11px] text-amber-100 font-normal">
+                Verifying background notification, lock-screen vibration, and emergency alarm dispatch.
+              </div>
+            </div>
+          </div>
+          <span className="text-[10px] font-mono uppercase bg-slate-950/80 text-amber-300 px-2.5 py-1 rounded-full font-bold">
+            Closed-App Alarm Drill
+          </span>
+        </div>
+      )}
+
       {/* 3 TABS NAVIGATION: Photos Reported, Realtime Map, History */}
       <div className="bg-slate-900 border-b border-slate-800 px-3 sm:px-4 py-2.5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-1.5 sm:gap-2">
@@ -482,6 +541,32 @@ export default function AdminDashboard({
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Lock-Screen Alert Status & Test Drill */}
+          {notificationPerm === 'granted' ? (
+            <button
+              type="button"
+              onClick={handleRunDrill}
+              className="py-1.5 px-2.5 rounded-xl bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-700/60 text-emerald-300 text-xs font-bold flex items-center gap-1.5 transition shadow"
+              title="Lock-Screen Alarm is ACTIVE. Tap to test 5s closed-app drill."
+            >
+              <Bell className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="hidden lg:inline">Closed-App Alarm:</span>
+              <span className="text-[10px] bg-emerald-500 text-slate-950 px-1.5 py-0.2 rounded font-black">
+                ACTIVE
+              </span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleEnableNotifications}
+              className="py-1.5 px-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black flex items-center gap-1.5 transition shadow animate-pulse"
+              title="Click to enable lock-screen alerts so alarms sound even when the app is closed!"
+            >
+              <Smartphone className="w-3.5 h-3.5 text-slate-950" />
+              <span>Enable Closed-App Alerts</span>
+            </button>
+          )}
+
           {/* Always accessible TURN OFF Siren button in Admin header toolbar */}
           <button
             type="button"

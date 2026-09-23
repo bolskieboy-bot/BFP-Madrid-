@@ -83,6 +83,13 @@ import {
   playCitizenGentleConfirmation,
   dispatchBackgroundAdminNotification,
 } from './services/audioService';
+import {
+  getUnacknowledgedPhotoReports,
+  markPhotoIncidentAcknowledged,
+  requestBackgroundAlarmPermission,
+  getNotificationPermissionStatus,
+  scheduleTestLockScreenAlarm,
+} from './services/backgroundAlarmService';
 
 export default function App() {
   // App State
@@ -139,9 +146,10 @@ export default function App() {
       setSelectedReportId(loadedReports[0].id);
     }
 
-    // Check URL parameters (e.g. notification click when app was closed: /?adminAlarm=true)
+    // Check URL parameters (e.g. notification click when app was closed: /?adminAlarm=true&incidentId=...)
     const urlParams = new URLSearchParams(window.location.search);
     const hasAdminAlarmParam = urlParams.has('adminAlarm');
+    const urlIncidentId = urlParams.get('incidentId');
 
     // Load stored user only if valid registered user or admin, clearing out any test account
     let stored = getStoredUserProfile();
@@ -163,19 +171,37 @@ export default function App() {
       setDashboardMode('admin');
     }
 
-    // CHECK FOR PENDING DISTURBING ALARM (Even if the app was closed when citizen reported!)
-    const pendingAlarm = getPendingDisturbingAlarm();
-    if (pendingAlarm && !pendingAlarm.acknowledged) {
-      const matching = loadedReports.find((r) => r.incidentNumber === pendingAlarm.incidentNumber || r.id === pendingAlarm.id) || loadedReports[0];
-      if (matching) {
-        setActiveAlarmReport(matching);
-      }
+    // CHECK FOR UNACKNOWLEDGED INCIDENT REPORTS WITH PHOTOS (Even if the app was closed!)
+    const unackedPhotos = getUnacknowledgedPhotoReports(loadedReports);
+    const targetIncident = urlIncidentId
+      ? loadedReports.find((r) => r.id === urlIncidentId)
+      : (unackedPhotos.length > 0 ? unackedPhotos[0] : null);
+
+    if (targetIncident) {
+      setActiveAlarmReport(targetIncident);
+      setSelectedReportId(targetIncident.id);
       if (stored?.role === 'admin_dispatcher' || hasAdminAlarmParam) {
         setDashboardMode('admin');
         startContinuousStationAlarm({
-          incidentNumber: pendingAlarm.incidentNumber,
-          location: pendingAlarm.location,
+          incidentNumber: targetIncident.incidentNumber,
+          location: targetIncident.location?.streetAddress || targetIncident.location?.barangay || 'Madrid',
         });
+      }
+    } else {
+      // CHECK FOR PENDING DISTURBING ALARM (Even if the app was closed when citizen reported!)
+      const pendingAlarm = getPendingDisturbingAlarm();
+      if (pendingAlarm && !pendingAlarm.acknowledged) {
+        const matching = loadedReports.find((r) => r.incidentNumber === pendingAlarm.incidentNumber || r.id === pendingAlarm.id) || loadedReports[0];
+        if (matching) {
+          setActiveAlarmReport(matching);
+        }
+        if (stored?.role === 'admin_dispatcher' || hasAdminAlarmParam) {
+          setDashboardMode('admin');
+          startContinuousStationAlarm({
+            incidentNumber: pendingAlarm.incidentNumber,
+            location: pendingAlarm.location,
+          });
+        }
       }
     }
 
@@ -264,21 +290,37 @@ export default function App() {
           const prevIds = new Set(prevReports.map((r) => r.id));
           const newlyDispatched = cloudReports.filter((cr) => !prevIds.has(cr.id));
 
+          // Check for unacknowledged active reports with photos
+          const unackedPhotoReports = getUnacknowledgedPhotoReports(cloudReports);
+
           if (newlyDispatched.length > 0 && prevReports.length > 0) {
             const newest = newlyDispatched[0];
+            const hasPhoto = !!(newest.photos && newest.photos.length > 0);
+
+            // ALWAYS trigger background & lock-screen notification when incident photo or emergency arrives!
+            // This wakes up duty admin phone and fires lock-screen system notification via Service Worker even when app is closed:
+            dispatchBackgroundAdminNotification({
+              id: newest.id,
+              incidentNumber: newest.incidentNumber,
+              location: newest.location?.streetAddress || newest.location?.barangay || 'Madrid',
+              photoUrl: newest.photos?.[0]?.dataUrl,
+              hasPhoto,
+              title: newest.title,
+            });
 
             // If user is viewing the Admin App OR authenticated as Admin:
             // Continuous disturbing siren immediately alarms on Admin phone!
             const isCurrentlyAdmin = dashboardMode === 'admin' || adminUser !== null;
-            if (isCurrentlyAdmin) {
+            if (isCurrentlyAdmin || hasPhoto) {
               setActiveAlarmReport(newest);
+              setSelectedReportId(newest.id);
               setPendingDisturbingAlarm({
                 id: newest.id,
                 incidentNumber: newest.incidentNumber,
                 location: newest.location?.streetAddress || newest.location?.barangay || 'Madrid',
               });
 
-              if (dashboardMode === 'admin') {
+              if (dashboardMode === 'admin' || isCurrentlyAdmin) {
                 startContinuousStationAlarm({
                   incidentNumber: newest.incidentNumber,
                   location: newest.location?.streetAddress || newest.location?.barangay || 'Madrid',
@@ -289,7 +331,7 @@ export default function App() {
             const alertNotif: PushNotificationItem = {
               id: 'notif-cloud-' + Date.now(),
               incidentId: newest.id,
-              title: `🚨 INCOMING EMERGENCY: ${newest.incidentNumber}`,
+              title: hasPhoto ? `🚨 PHOTO DISPATCH: ${newest.incidentNumber}` : `🚨 INCOMING EMERGENCY: ${newest.incidentNumber}`,
               body: `${newest.title} reported at ${newest.location?.barangay || 'Madrid'}. Linked live via cloud.`,
               type: 'dispatch',
               timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -297,6 +339,20 @@ export default function App() {
             };
             setNotifications((prev) => [alertNotif, ...prev]);
             setActiveToast(alertNotif);
+          } else if (unackedPhotoReports.length > 0 && (dashboardMode === 'admin' || adminUser !== null)) {
+            // Cold sync while app was closed: automatically sound siren for unacknowledged photo!
+            const photoIncident = unackedPhotoReports[0];
+            setActiveAlarmReport(photoIncident);
+            setSelectedReportId(photoIncident.id);
+            setPendingDisturbingAlarm({
+              id: photoIncident.id,
+              incidentNumber: photoIncident.incidentNumber,
+              location: photoIncident.location?.streetAddress || photoIncident.location?.barangay || 'Madrid',
+            });
+            startContinuousStationAlarm({
+              incidentNumber: photoIncident.incidentNumber,
+              location: photoIncident.location?.streetAddress || photoIncident.location?.barangay || 'Madrid',
+            });
           } else {
             // Check for status changes on existing reports made by station admins or responders
             cloudReports.forEach((cr) => {
@@ -424,10 +480,19 @@ export default function App() {
 
     if ('serviceWorker' in navigator) {
       const handleSwMessage = (event: MessageEvent) => {
-        if (event.data?.type === 'ADMIN_EMERGENCY_ALARM_TRIGGERED' || event.data?.type === 'FOCUS_ADMIN_DISPATCH') {
-          if (dashboardMode === 'admin') {
-            startContinuousStationAlarm(event.data.details);
+        if (
+          event.data?.type === 'ADMIN_EMERGENCY_ALARM_TRIGGERED' ||
+          event.data?.type === 'FOCUS_ADMIN_DISPATCH' ||
+          event.data?.type === 'INCIDENT_PHOTO_ALERT'
+        ) {
+          setDashboardMode('admin');
+          if (event.data?.incidentId) {
+            setSelectedReportId(event.data.incidentId);
+            const currentReports = getStoredReports();
+            const match = currentReports.find((r) => r.id === event.data.incidentId);
+            if (match) setActiveAlarmReport(match);
           }
+          startContinuousStationAlarm(event.data.details);
         }
       };
       navigator.serviceWorker.addEventListener('message', handleSwMessage);
@@ -537,9 +602,14 @@ export default function App() {
       playCitizenGentleConfirmation();
 
       // Dispatch disturbing notification across background channel & service worker to notify all admin accounts
+      const hasPhoto = !!(newReport.photos && newReport.photos.length > 0);
       dispatchBackgroundAdminNotification({
+        id: newReport.id,
         incidentNumber: newReport.incidentNumber,
         location: newReport.location.streetAddress || newReport.location.barangay,
+        photoUrl: newReport.photos?.[0]?.dataUrl,
+        hasPhoto,
+        title: newReport.title,
       });
     }
 
@@ -578,6 +648,7 @@ export default function App() {
     setActiveAlarmReport(null);
 
     if (currentAlarm) {
+      markPhotoIncidentAcknowledged(currentAlarm.id);
       const updatedHistory = [
         ...currentAlarm.statusHistory,
         {
@@ -604,6 +675,8 @@ export default function App() {
 
   // Update incident status from dispatch - AUTOMATICALLY TURNS OFF ALARM ON ADMIN ACTION
   const handleReportUpdated = (updated: IncidentReport) => {
+    markPhotoIncidentAcknowledged(updated.id);
+
     // AUTOMATIC ALARM TURN OFF ON ADMIN ACTION:
     // User requirement: "and when there is an action taken by the admin automatic the alarm will turn off."
     if (activeAlarmReport || isStationAlarmSounding()) {

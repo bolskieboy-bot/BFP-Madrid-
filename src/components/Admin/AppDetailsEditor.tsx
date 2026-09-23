@@ -22,6 +22,11 @@ import {
   DEFAULT_APP_DETAILS,
 } from '../../services/storageService';
 import { playAlarmingStationSiren, stopAllAlarmSounds } from '../../services/audioService';
+import {
+  scheduleTestLockScreenAlarm,
+  requestBackgroundAlarmPermission,
+  getNotificationPermissionStatus,
+} from '../../services/backgroundAlarmService';
 import BfpMadridLogo from '../Common/BfpMadridLogo';
 
 interface AppDetailsEditorProps {
@@ -33,6 +38,18 @@ export default function AppDetailsEditor({ currentUser, onConfigSaved }: AppDeta
   const [config, setConfig] = useState<AppDetailsConfig>(() => getAppDetailsConfig());
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isTestingAlarm, setIsTestingAlarm] = useState(false);
+  const [testDrillNotice, setTestDrillNotice] = useState<string | null>(null);
+
+  const handleTestLockScreenAlarm = async () => {
+    let perm = getNotificationPermissionStatus();
+    if (perm !== 'granted') {
+      const granted = await requestBackgroundAlarmPermission();
+      perm = granted ? 'granted' : 'denied';
+    }
+    setTestDrillNotice('⚡ Drill scheduled! Lock your phone or close this tab now. Incident photo alert sounds in 5s.');
+    scheduleTestLockScreenAlarm(5);
+    setTimeout(() => setTestDrillNotice(null), 8000);
+  };
 
   const adminName = currentUser?.username || 'Admin1';
 
@@ -317,6 +334,26 @@ export default function AppDetailsEditor({ currentUser, onConfigSaved }: AppDeta
                 <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                 <span>Citizen Rule Enforced: Citizens receive zero alarm sounds when reporting or sending photos. Only admins alarm.</span>
               </div>
+
+              <div className="pt-2 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+                <div className="text-[11px] text-slate-300">
+                  Closed-App Incident Photo Alarm Verification:
+                </div>
+                <button
+                  type="button"
+                  onClick={handleTestLockScreenAlarm}
+                  className="py-1.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow"
+                >
+                  <BellRing className="w-3.5 h-3.5" />
+                  <span>Test Closed-App Alert in 5s</span>
+                </button>
+              </div>
+
+              {testDrillNotice && (
+                <div className="p-2.5 rounded-xl bg-amber-950/80 border border-amber-600 text-amber-300 text-xs font-bold animate-pulse">
+                  {testDrillNotice}
+                </div>
+              )}
             </div>
 
             <div className="text-[11px] text-slate-500 flex items-center justify-between">

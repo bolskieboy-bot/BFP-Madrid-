@@ -32,30 +32,49 @@ self.addEventListener('activate', (event) => {
 
 // Listen for broadcasted emergency dispatch messages from any tab
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.type === 'ADMIN_EMERGENCY_ALARM_TRIGGERED') {
+  if (
+    event.data &&
+    (event.data.type === 'ADMIN_EMERGENCY_ALARM_TRIGGERED' ||
+      event.data.type === 'INCIDENT_PHOTO_ALERT')
+  ) {
     const details = event.data.details || {};
-    const title = '🚨 [CRITICAL DISPATCH] BFP MADRID EMERGENCY!';
+    const hasPhoto = details.hasPhoto || !!details.photoUrl;
+    const title = hasPhoto
+      ? `🚨 [PHOTO ALERT] EMERGENCY: ${details.incidentNumber || 'NEW INCIDENT'}`
+      : `🚨 [CRITICAL DISPATCH] BFP MADRID EMERGENCY!`;
+
     const options = {
-      body: details.incidentNumber
-        ? `EMERGENCY ALERT: ${details.incidentNumber} reported at ${details.location || 'Madrid, Surigao del Sur'}. Open app immediately to dispatch response unit!`
-        : 'Emergency incident distress received! Duty dispatchers Admin1 & Admin2 respond immediately!',
+      body: hasPhoto
+        ? `📸 Photo evidence sent from ${details.location || 'Madrid, Surigao del Sur'} (${details.title || 'Emergency Incident'}). Duty Admin: Tap to view photo and sound station siren!`
+        : (details.incidentNumber
+            ? `EMERGENCY ALERT: ${details.incidentNumber} reported at ${details.location || 'Madrid, Surigao del Sur'}. Open app immediately to dispatch response unit!`
+            : 'Emergency incident distress received! Duty dispatchers respond immediately!'),
       icon: '/ChatGPT Image Sep 23, 2026, 12_48_31 PM.png',
       badge: '/ChatGPT Image Sep 23, 2026, 12_48_31 PM.png',
-      tag: 'bfp-madrid-critical-alarm',
-      requireInteraction: true, // Will not auto-dismiss; forces duty admin attention
+      tag: 'bfp-madrid-critical-photo-alarm',
+      requireInteraction: true, // Will not auto-dismiss; forces duty admin attention on lock screen
       renotify: true,
-      vibrate: [1200, 200, 1200, 200, 1600, 250, 2400],
+      vibrate: [1500, 200, 1500, 200, 2000, 250, 3000],
       data: {
-        url: '/?adminAlarm=true',
-        timestamp: Date.now()
+        url: `/?adminAlarm=true&incidentId=${details.id || ''}&hasPhoto=${hasPhoto ? '1' : '0'}`,
+        timestamp: Date.now(),
+        incidentId: details.id,
+        hasPhoto: hasPhoto,
       },
       actions: [
-        { action: 'respond', title: '🚨 OPEN DISPATCH' },
-        { action: 'silence', title: '🔕 MUTE ALARM' }
-      ]
+        { action: 'respond', title: '🚨 OPEN DISPATCH & SIREN' },
+        { action: 'view_photo', title: '📸 VIEW INCIDENT PHOTO' },
+      ],
     };
 
-    self.registration.showNotification(title, options).catch(() => {});
+    // If photoUrl is available, add preview image for rich Android & desktop notifications
+    if (details.photoUrl && !details.photoUrl.startsWith('data:')) {
+      options.image = details.photoUrl;
+    }
+
+    self.registration.showNotification(title, options).catch((err) => {
+      console.warn('Failed to display SW notification:', err);
+    });
   }
 });
 
@@ -70,17 +89,30 @@ self.addEventListener('push', (event) => {
     }
   }
 
-  const title = data.title || '🚨 CRITICAL BFP MADRID EMERGENCY';
+  const hasPhoto = data.hasPhoto || !!data.photoUrl;
+  const title = data.title || (hasPhoto ? '🚨 [PHOTO ALERT] BFP MADRID EMERGENCY' : '🚨 CRITICAL BFP MADRID EMERGENCY');
   const options = {
-    body: data.body || 'New high-priority emergency reported in Madrid, Surigao del Sur. Immediate dispatch required!',
+    body: data.body || (hasPhoto ? '📸 Emergency photo sent in Madrid. Immediate duty admin response required!' : 'New high-priority emergency reported in Madrid, Surigao del Sur. Immediate dispatch required!'),
     icon: '/ChatGPT Image Sep 23, 2026, 12_48_31 PM.png',
     badge: '/ChatGPT Image Sep 23, 2026, 12_48_31 PM.png',
-    tag: 'bfp-madrid-critical-alarm',
+    tag: 'bfp-madrid-critical-photo-alarm',
     requireInteraction: true,
     renotify: true,
-    vibrate: [1200, 200, 1200, 200, 1600, 250, 2400],
-    data: { url: '/?adminAlarm=true' }
+    vibrate: [1500, 200, 1500, 200, 2000, 250, 3000],
+    data: {
+      url: `/?adminAlarm=true&incidentId=${data.incidentId || ''}&hasPhoto=${hasPhoto ? '1' : '0'}`,
+      incidentId: data.incidentId,
+      hasPhoto: hasPhoto
+    },
+    actions: [
+      { action: 'respond', title: '🚨 OPEN DISPATCH & SIREN' },
+      { action: 'view_photo', title: '📸 VIEW INCIDENT PHOTO' },
+    ]
   };
+
+  if (data.photoUrl && !data.photoUrl.startsWith('data:')) {
+    options.image = data.photoUrl;
+  }
 
   event.waitUntil(self.registration.showNotification(title, options));
 });
@@ -101,12 +133,19 @@ self.addEventListener('notificationclick', (event) => {
   }
 
   const targetUrl = event.notification.data?.url || '/?adminAlarm=true';
+  const incidentId = event.notification.data?.incidentId;
+  const hasPhoto = event.notification.data?.hasPhoto;
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.postMessage({ type: 'FOCUS_ADMIN_DISPATCH' });
+          client.postMessage({
+            type: 'FOCUS_ADMIN_DISPATCH',
+            incidentId,
+            action: event.action,
+            hasPhoto
+          });
           return client.focus();
         }
       }
